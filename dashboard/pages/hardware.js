@@ -7,6 +7,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import useMotorData, { API } from '../hooks/useMotorData';
+import ConfiMinasLogo from '../components/ConfiMinasLogo';
 
 const OFF_STYLE = { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0' };
 const ON_STYLE = { bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' };
@@ -85,10 +86,39 @@ function SimulatorPanel({ onChanged }) {
     return () => clearInterval(t);
   }, [fetchStatus]);
 
+  const parseApiError = (data) => {
+    const d = data?.detail;
+    if (typeof d === 'string') return d;
+    if (Array.isArray(d) && d[0]?.msg) return d[0].msg;
+    return 'Falha na operação';
+  };
+
+  const prepareEsp32 = async () => {
+    setLoading(true);
+    setMsg('');
+    try {
+      const res = await fetch(`${API}/api/simulator/prepare-esp32`, { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(parseApiError(data));
+      setMsg(data.message || 'Modo placa ESP32 — simulador parado');
+      await fetchStatus();
+      onChanged?.();
+    } catch (e) {
+      setMsg(e.message || 'Erro ao preparar modo placa');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggle = async () => {
     setLoading(true);
     setMsg('');
     try {
+      if (!sim.running && sim.esp32_active) {
+        throw new Error(
+          'Placa ESP32 enviando dados. Clique em "Usar placa ESP32" ou rode ./start.sh --real'
+        );
+      }
       const url = sim.running
         ? `${API}/api/simulator/stop`
         : `${API}/api/simulator/start`;
@@ -98,7 +128,7 @@ function SimulatorPanel({ onChanged }) {
         body: sim.running ? undefined : JSON.stringify({ profile, cycle }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.detail || 'Falha na operação');
+      if (!res.ok) throw new Error(parseApiError(data));
       setMsg(data.message || (sim.running ? 'Simulador parado' : 'Simulador iniciado'));
       await fetchStatus();
       onChanged?.();
@@ -143,6 +173,19 @@ function SimulatorPanel({ onChanged }) {
         </span>
       </div>
 
+      {sim.esp32_active && (
+        <p className="text-xs mb-4 px-3 py-2 rounded-lg"
+           style={{ background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }}>
+          Placa ESP32 ativa — o simulador é encerrado automaticamente. Para usar o simulador, pare o envio da placa primeiro.
+        </p>
+      )}
+
+      <div className="mb-4">
+        <button type="button" onClick={prepareEsp32} disabled={loading} className="btn-ghost flex items-center gap-2 text-sm">
+          <Cpu size={14} /> Usar placa ESP32 (parar simulador)
+        </button>
+      </div>
+
       <div className="flex flex-col sm:flex-row flex-wrap gap-4 items-end">
         <label className="flex flex-col gap-1.5 text-xs font-semibold" style={{ color: '#475569' }}>
           Perfil
@@ -173,7 +216,7 @@ function SimulatorPanel({ onChanged }) {
         <button
           type="button"
           onClick={toggle}
-          disabled={loading}
+          disabled={loading || (!sim.running && sim.esp32_active)}
           className="btn-primary flex items-center justify-center gap-2 px-6 py-2.5 min-w-[180px]"
           style={{
             background: sim.running ? '#fef2f2' : undefined,
@@ -295,13 +338,16 @@ export default function HardwarePage() {
       <Head><title>Hardware — Motor Monitor</title></Head>
       <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
-        <header className="sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between"
-                style={{ background: '#fff', borderBottom: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(15,23,42,0.06)' }}>
-          <div className="flex items-center gap-3">
-            <a href="/" className="btn-ghost flex items-center gap-1">
+        <header className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between"
+                style={{ background: '#fff', borderBottom: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(15,23,42,0.06)', minHeight: 60 }}>
+          <div className="flex items-center gap-4 min-w-0">
+            <ConfiMinasLogo height={40} maxWidth={200} />
+            <a href="/" className="btn-ghost flex items-center gap-1 shrink-0">
               <ChevronLeft size={12} /> Dashboard
             </a>
-            <span className="font-bold text-sm" style={{ color: '#0f172a' }}>Painel de Hardware</span>
+            <span className="hidden md:inline font-semibold text-sm" style={{ color: '#0f172a' }}>
+              Painel de Hardware
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={refresh} className="btn-primary">

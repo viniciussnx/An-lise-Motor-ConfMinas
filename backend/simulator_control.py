@@ -84,6 +84,21 @@ def get_status() -> dict:
     }
 
 
+def _esp32_active() -> bool:
+    """Placa enviando leituras recentes — não iniciar simulador."""
+    try:
+        from database import SessionLocal
+        from data_source import esp32_sending_live
+
+        db = SessionLocal()
+        try:
+            return esp32_sending_live(db)
+        finally:
+            db.close()
+    except Exception:
+        return False
+
+
 def start_simulator(profile: str = "normal", cycle: bool = False) -> dict:
     global _proc, _profile, _cycle
 
@@ -92,6 +107,12 @@ def start_simulator(profile: str = "normal", cycle: bool = False) -> dict:
 
     if profile not in VALID_PROFILES:
         raise ValueError(f"Perfil inválido: {profile}")
+
+    if _esp32_active():
+        raise RuntimeError(
+            "Placa ESP32 enviando dados. Desligue a placa ou aguarde parar de enviar "
+            "antes de ligar o simulador (use ./start.sh --real para modo só placa)."
+        )
 
     st = get_status()
     if st["running"]:

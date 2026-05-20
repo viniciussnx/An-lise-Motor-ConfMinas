@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { ChevronLeft, Save, RotateCcw, Sliders } from 'lucide-react';
+import ConfiMinasLogo from '../components/ConfiMinasLogo';
 
 const API = 'http://localhost:8000';
 
@@ -103,14 +104,16 @@ export default function ThresholdsPage() {
       <Head><title>Limites — Motor Monitor</title></Head>
       <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
 
-        <header className="sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between"
-                style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border)' }}>
-          <div className="flex items-center gap-3">
-            <a href="/" className="btn-ghost flex items-center gap-1">
+        <header className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between"
+                style={{ background: '#fff', borderBottom: '1px solid var(--border)', boxShadow: '0 1px 3px rgba(15,23,42,0.06)', minHeight: 60 }}>
+          <div className="flex items-center gap-4 min-w-0">
+            <ConfiMinasLogo height={40} maxWidth={200} />
+            <a href="/" className="btn-ghost flex items-center gap-1 shrink-0">
               <ChevronLeft size={12} /> Dashboard
             </a>
-            <Sliders size={15} style={{ color: '#3b6cf4' }} />
-            <span className="font-bold text-sm" style={{ color: '#0f172a' }}>Configurar Limites de Alarme</span>
+            <span className="hidden md:inline font-semibold text-sm" style={{ color: '#0f172a' }}>
+              Limites de alarme
+            </span>
           </div>
           <div className="flex gap-2">
             <button onClick={reset} className="btn-ghost">

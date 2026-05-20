@@ -19,25 +19,37 @@ function arc(t0, t1) {
   return `M ${p0.x.toFixed(1)} ${p0.y.toFixed(1)} A ${VB.r} ${VB.r} 0 0 1 ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
 }
 
-function StatusGaugeInner({ label, value, unit, min, max, alertAt, criticalAt, hasData }) {
+const STATUS_COLOR = {
+  normal: '#10b981',
+  alert: '#f59e0b',
+  critical: '#ef4444',
+  no_data: '#94a3b8',
+};
+
+function StatusGaugeInner({
+  label, value, unit, min, max, alertAt, criticalAt, hasData,
+  sensorStatus, decimals = 1,
+}) {
   const displayValue = hasData && value != null ? Number(value) : 0;
   const range = max - min || 1;
 
   const { pct, alertT, criticalT, color } = useMemo(() => {
     const p = Math.min(Math.max((displayValue - min) / range, 0), 1);
+    const fromStatus = sensorStatus && STATUS_COLOR[sensorStatus];
+    const fromValue = !hasData
+      ? '#94a3b8'
+      : displayValue >= criticalAt
+        ? '#ef4444'
+        : displayValue >= alertAt
+          ? '#f59e0b'
+          : '#10b981';
     return {
       pct: p,
       alertT: Math.min(Math.max((alertAt - min) / range, 0), 1),
       criticalT: Math.min(Math.max((criticalAt - min) / range, 0), 1),
-      color: !hasData
-        ? '#94a3b8'
-        : displayValue >= criticalAt
-          ? '#ef4444'
-          : displayValue >= alertAt
-            ? '#f59e0b'
-            : '#10b981',
+      color: fromStatus || fromValue,
     };
-  }, [displayValue, min, range, alertAt, criticalAt, hasData]);
+  }, [displayValue, min, range, alertAt, criticalAt, hasData, sensorStatus]);
 
   const tip = polar(pct);
   const left = polar(0);
@@ -125,7 +137,7 @@ function StatusGaugeInner({ label, value, unit, min, max, alertAt, criticalAt, h
           }}
         >
           <span className="mono" style={{ fontSize: 22, fontWeight: 700, color, whiteSpace: 'nowrap' }}>
-            {displayValue.toFixed(1)}
+            {displayValue.toFixed(decimals)}
           </span>
           <span style={{ fontSize: 11, color: '#64748b', marginLeft: 4 }}>{unit}</span>
         </div>
@@ -140,7 +152,9 @@ function propsEqual(a, b) {
     a.value === b.value &&
     a.hasData === b.hasData &&
     a.min === b.min &&
-    a.max === b.max
+    a.max === b.max &&
+    a.sensorStatus === b.sensorStatus &&
+    a.decimals === b.decimals
   );
 }
 

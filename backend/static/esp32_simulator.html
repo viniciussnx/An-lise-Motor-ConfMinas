@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESP32 Simulator</title>
+<style>
+:root {
+  --bg:       #0b0f14;
+  --bg2:      #131920;
+  --bg3:      #1c2430;
+  --bg4:      #242e3c;
+  --border:   #2a3548;
+  --green:    #22d488;
+  --green-d:  #15a066;
+  --amber:    #f0a832;
+  --amber-d:  #b87c20;
+  --blue:     #4da8f7;
+  --blue-d:   #2c6fb5;
+  --red:      #f05a5a;
+  --teal:     #2eccd4;
+  --purple:   #a78bfa;
+  --text:     #d4dde8;
+  --text-2:   #7a8ea8;
+  --text-3:   #445566;
+  --mono:     'JetBrains Mono','Fira Code',monospace;
+  --sans:     'Segoe UI',system-ui,sans-serif;
+  --r:        8px;
+  --r2:       12px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html, body { height:100%; overflow-x:hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── Layout ── */
+.shell {
+  display: grid;
+  grid-template-rows: 52px 1fr 260px;
+  grid-template-columns: 240px 1fr 260px;
+  grid-template-areas:
+    "hd hd hd"
+    "board  sensors conn"
+    "board  monitor conn";
+  height: 100vh;
+  gap: 0;
+}
+
+/* ── Header ── */
+header {
+  grid-area: hd;
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 14px; font-weight: 600;
+  color: var(--green);
+  letter-spacing: .04em;
+}
+.logo svg { width:24px; height:24px; }
+.badge {
+  padding: 2px 8px; border-radius:4px; font-size:11px;
+  font-family:var(--mono); letter-spacing:.04em;
+}
+.badge-ver { background:#1e2d40; color:var(--blue); }
+.badge-status {
+  display:flex; align-items:center; gap:5px;
+  padding: 3px 10px; border-radius:4px;
+  background: var(--bg3); border:1px solid var(--border);
+}
+.dot { width:7px; height:7px; border-radius:50%; }
+.dot-on  { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
+.dot-off { background:var(--text-3); }
+.dot-ws  { background:var(--amber); box-shadow:0 0 6px var(--amber); }
+.dot-http { background:var(--blue); box-shadow:0 0 6px var(--blue); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.hdr-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+#ctrl-btn {
+  padding:5px 14px; border-radius:6px; border:none; cursor:pointer;
+  font-family:var(--mono); font-size:12px; font-weight:600;
+  background: var(--green-d); color:#fff;
+  transition: background .15s;
+}
+#ctrl-btn:hover { background: var(--green); }
+#ctrl-btn.releasing { background: var(--red); }
+#ctrl-btn.releasing:hover { background: #d43a3a; }
+
+/* ── Board Panel ── */
+.board-panel {
+  grid-area: board;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 14px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.panel-title {
+  font-size:10px; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--text-3); margin-bottom:4px;
+}
+
+/* ESP32 Board SVG */
+.esp32-svg { width:100%; height:auto; }
+
+/* GPIO table */
+.gpio-table { width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11px; }
+.gpio-table th {
+  text-align:left; color:var(--text-3); font-weight:500;
+  padding:3px 4px; border-bottom:1px solid var(--border);
+}
+.gpio-table td { padding:3px 4px; border-bottom:1px solid #1a2233; }
+.pin-num { color:var(--amber); }
+.pin-fn  { color:var(--text-2); }
+.pin-active { color:var(--green); }
+
+/* ── Sensors Area ── */
+.sensors-area {
+  grid-area: sensors;
+  overflow-y: auto;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 12px;
+  align-content: start;
+}
+
+/* Sensor Card */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+}
+.card-vib::before { background: var(--purple); }
+.card-tmp::before { background: var(--red); }
+.card-elc::before { background: var(--amber); }
+.card-mtr::before { background: var(--green); }
+
+.card-header {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:12px;
+}
+.card-icon {
+  width:28px; height:28px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:15px;
+}
+.icon-vib { background:#2a1f4a; }
+.icon-tmp { background:#3a1a1a; }
+.icon-elc { background:#3a2a10; }
+.icon-mtr { background:#0d2e1f; }
+
+.card-name { font-size:13px; font-weight:600; }
+.card-model { font-size:10px; color:var(--text-3); font-family:var(--mono); }
+.card-enabled { margin-left:auto; }
+
+/* Toggle */
+.toggle { position:relative; display:inline-block; width:36px; height:20px; }
+.toggle input { opacity:0; width:0; height:0; }
+.slider-tog {
+  position:absolute; inset:0; border-radius:10px; cursor:pointer;
+  background:var(--bg4); transition:.2s;
+}
+.slider-tog::after {
+  content:''; position:absolute;
+  width:14px; height:14px; border-radius:50%;
+  left:3px; top:3px; background:var(--text-3);
+  transition:.2s;
+}
+input:checked + .slider-tog { background:var(--green-d); }
+input:checked + .slider-tog::after { transform:translateX(16px); background:#fff; }
+
+/* Sliders */
+.ctrl-row {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:8px;
+}
+.ctrl-label { color:var(--text-2); min-width:78px; font-size:12px; }
+.ctrl-val {
+  font-family:var(--mono); font-size:12px; color:var(--text);
+  min-width:52px; text-align:right;
+}
+input[type=range] {
+  flex:1; -webkit-appearance:none; height:4px;
+  background:var(--bg4); border-radius:2px; outline:none;
+  cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:14px; height:14px;
+  border-radius:50%; cursor:pointer; transition:.1s;
+}
+.r-purple::-webkit-slider-thumb { background:var(--purple); }
+.r-red::-webkit-slider-thumb    { background:var(--red); }
+.r-blue::-webkit-slider-thumb   { background:var(--blue); }
+.r-amber::-webkit-slider-thumb  { background:var(--amber); }
+.r-green::-webkit-slider-thumb  { background:var(--green); }
+.r-teal::-webkit-slider-thumb   { background:var(--teal); }
+
+/* Readout pills */
+.readouts {
+  display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;
+}
+.pill {
+  padding:3px 9px; border-radius:20px;
+  font-family:var(--mono); font-size:11px;
+  border:1px solid var(--border);
+  background:var(--bg3);
+}
+.pill-v   { color:var(--purple); border-color:#3d2766; background:#1a1130; }
+.pill-t   { color:#ff8080; border-color:#4a2222; background:#1e0f0f; }
+.pill-h   { color:var(--blue); border-color:#1c3a60; background:#0d1e33; }
+.pill-pwr { color:var(--amber); border-color:#4a3310; background:#201608; }
+.pill-ok  { color:var(--green); border-color:#1a3d28; background:#0a1c12; }
+.pill-warn{ color:var(--red);   border-color:#4a1a1a; background:#1e0a0a; }
+
+/* Motor */
+.motor-ring {
+  width:72px; height:72px;
+  border-radius:50%;
+  border:3px solid var(--bg4);
+  border-top-color:var(--green);
+  margin:0 auto 10px;
+  transition:border-color .3s;
+  position:relative;
+}
+.motor-ring.spinning { animation:spin linear infinite; }
+.motor-ring.spinning.ccw { animation-direction:reverse; }
+.motor-inner {
+  position:absolute; inset:6px;
+  background:var(--bg3); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-size:11px; font-weight:600;
+  flex-direction:column;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.dir-btns { display:flex; gap:6px; margin-top:6px; }
+.dir-btn {
+  flex:1; padding:5px; border-radius:6px; border:1px solid var(--border);
+  background:var(--bg4); color:var(--text-2); cursor:pointer;
+  font-size:11px; font-family:var(--mono);
+  transition:.15s;
+}
+.dir-btn.active { border-color:var(--green); background:var(--bg3); color:var(--green); }
+
+/* ── Serial Monitor ── */
+.monitor-area {
+  grid-area: monitor;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.mon-header {
+  display:flex; align-items:center; gap:8px;
+  padding:6px 12px;
+  border-bottom:1px solid var(--border);
+  font-family:var(--mono); font-size:11px; color:var(--text-2);
+}
+.mon-header span { margin-left:auto; }
+.mon-body {
+  flex:1; overflow-y:auto; padding:6px 12px;
+  font-family:var(--mono); font-size:11px; line-height:1.8;
+  color:var(--text-2);
+}
+.mon-line { white-space:pre; display:flex; gap:8px; }
+.mon-ts   { color:var(--text-3); min-width:60px; }
+.mon-ok   { color:var(--green); }
+.mon-warn { color:var(--amber); }
+.mon-err  { color:var(--red); }
+.mon-data { color:#7ecfff; }
+.mon-clear {
+  background:none; border:none; color:var(--text-3); cursor:pointer;
+  font-size:11px; font-family:var(--mono); padding:2px 6px;
+}
+.mon-clear:hover { color:var(--text-2); }
+
+/* ── Connection Panel ── */
+.conn-panel {
+  grid-area: conn;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  padding: 14px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+/* Input / Select */
+.field { display:flex; flex-direction:column; gap:5px; }
+.field label { font-size:11px; color:var(--text-3); text-transform:uppercase; letter-spacing:.06em; }
+.field input, .field select {
+  background:var(--bg3); border:1px solid var(--border);
+  color:var(--text); border-radius:6px;
+  padding:6px 10px; font-family:var(--mono); font-size:12px;
+  outline:none;
+}
+.field input:focus, .field select:focus { border-color:var(--blue); }
+.field select { cursor:pointer; }
+
+.btn {
+  width:100%; padding:8px; border-radius:6px; border:1px solid var(--border);
+  font-family:var(--mono); font-size:12px; font-weight:600;
+  cursor:pointer; transition:.15s; background:var(--bg4); color:var(--text);
+}
+.btn:hover { background:var(--bg3); border-color:var(--text-2); }
+.btn-green { background:var(--green-d); border-color:var(--green); color:#fff; }
+.btn-green:hover { background:var(--green); }
+.btn-red   { background:#5a1a1a; border-color:var(--red); color:var(--red); }
+.btn-red:hover   { background:#8a2a2a; }
+.btn-blue  { background:#1a2e4a; border-color:var(--blue); color:var(--blue); }
+.btn-blue:hover  { background:#1e3a60; }
+
+/* Channel status */
+.ch-row {
+  display:flex; align-items:center; gap:8px;
+  padding:6px 0; border-bottom:1px solid var(--border);
+  font-size:11px;
+}
+.ch-row:last-child { border:none; }
+.ch-name { color:var(--text-2); }
+.ch-stat { margin-left:auto; font-family:var(--mono); }
+.ch-on  { color:var(--green); }
+.ch-off { color:var(--text-3); }
+.ch-http-on { color:var(--blue); }
+
+/* Data rate */
+.rate-bar {
+  height:3px; border-radius:2px;
+  background:linear-gradient(to right, var(--green), var(--teal));
+  transition:width .3s;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--bg4); border-radius:2px; }
+
+.sep { height:1px; background:var(--border); }
+
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.stat-box {
+  background:var(--bg3); border-radius:6px;
+  padding:7px 10px;
+}
+.stat-box .lbl { font-size:10px; color:var(--text-3); }
+.stat-box .val { font-family:var(--mono); font-size:14px; font-weight:600; }
+
+/* HTTP latency badge */
+.http-latency {
+  display:inline-block;
+  font-family:var(--mono); font-size:10px;
+  color:var(--teal); padding:2px 6px;
+  background:var(--bg3); border-radius:4px;
+  border:1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="6" width="20" height="12" rx="2" fill="#1a2e20" stroke="var(--green)" stroke-width="1.2"/>
+      <rect x="5"  y="9" width="14" height="6" rx="1" fill="#0d1a10" stroke="#22d488" stroke-width=".8"/>
+      <rect x="7"  y="10.5" width="10" height="3" rx=".5" fill="var(--green)" opacity=".3"/>
+      <line x1="9"  y1="6" x2="9"  y2="4" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="12" y1="6" x2="12" y2="4" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="15" y1="6" x2="15" y2="4" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="9"  y1="20" x2="9"  y2="18" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="12" y1="20" x2="12" y2="18" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="15" y1="20" x2="15" y2="18" stroke="var(--green)" stroke-width="1.2" stroke-linecap="round"/>
+      <circle cx="19" cy="8" r="1.2" fill="var(--green)" opacity=".7"/>
+    </svg>
+    ESP32 Simulator
+  </div>
+  <span class="badge badge-ver">v1.1 · WROOM-32</span>
+  <div class="badge-status" id="sim-status">
+    <div class="dot dot-on" id="sim-dot"></div>
+    <span id="sim-label" style="font-size:11px;font-family:var(--mono)">SIMULATOR ATIVO</span>
+  </div>
+  <div class="badge-status" id="ws-status" style="display:none">
+    <div class="dot dot-ws" id="ws-dot"></div>
+    <span id="ws-label" style="font-size:11px;font-family:var(--mono)">WS CONECTADO</span>
+  </div>
+  <!-- NOVO: badge HTTP -->
+  <div class="badge-status" id="http-status" style="display:none">
+    <div class="dot dot-http"></div>
+    <span id="http-label" style="font-size:11px;font-family:var(--mono)">HTTP ATIVO</span>
+  </div>
+  <div class="hdr-right">
+    <span style="font-family:var(--mono);font-size:11px;color:var(--text-3)" id="hz-label">100ms</span>
+    <button id="ctrl-btn" onclick="toggleControl()">▶ ASSUMIR CONTROLE</button>
+  </div>
+</header>
+
+<!-- ══ BOARD PANEL ══ -->
+<div class="board-panel">
+  <div class="panel-title">Placa ESP32</div>
+
+  <svg class="esp32-svg" viewBox="0 0 210 320" xmlns="http://www.w3.org/2000/svg">
+    <rect x="20" y="10" width="170" height="300" rx="6" fill="#0a1f0e" stroke="#1a4020" stroke-width="1.5"/>
+    <line x1="20" y1="60"  x2="190" y2="60"  stroke="#1a3015" stroke-width=".5"/>
+    <line x1="20" y1="260" x2="190" y2="260" stroke="#1a3015" stroke-width=".5"/>
+    <rect x="76" y="2" width="58" height="14" rx="3" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+    <rect x="84" y="5" width="42" height="8" rx="1" fill="#111"/>
+    <text x="105" y="11.5" text-anchor="middle" fill="#555" font-size="6" font-family="monospace">USB</text>
+    <rect x="22" y="12" width="166" height="36" rx="4" fill="#0c2010" stroke="#1e4025" stroke-width=".5"/>
+    <text x="105" y="26" text-anchor="middle" fill="#22d488" font-size="7" font-family="monospace" font-weight="bold">ESP32-WROOM-32</text>
+    <path d="M 155 14 Q 175 22 155 32 Q 175 38 155 44" fill="none" stroke="#22d488" stroke-width=".8" opacity=".5"/>
+    <path d="M 162 16 Q 185 24 162 32 Q 185 38 162 44" fill="none" stroke="#22d488" stroke-width=".8" opacity=".3"/>
+    <rect x="55" y="55" width="100" height="80" rx="4" fill="#111" stroke="#333" stroke-width="1"/>
+    <rect x="60" y="60" width="90"  height="70" rx="2" fill="#0d0d0d"/>
+    <text x="105" y="98"  text-anchor="middle" fill="#555" font-size="8"  font-family="monospace">Xtensa</text>
+    <text x="105" y="108" text-anchor="middle" fill="#444" font-size="6.5" font-family="monospace">LX6 240MHz</text>
+    <circle cx="175" cy="150" r="4" fill="#003300" stroke="#006600" stroke-width="1"/>
+    <circle cx="175" cy="150" r="2.5" fill="#00ff44" opacity=".7" id="board-led">
+      <animate attributeName="opacity" values=".7;.2;.7" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="175" y="160" text-anchor="middle" fill="#1a4020" font-size="5.5" font-family="monospace">LED</text>
+    <rect x="30" y="148" width="18" height="10" rx="2" fill="#1a1a1a" stroke="#333" stroke-width=".8"/>
+    <text x="39" y="155" text-anchor="middle" fill="#555" font-size="5" font-family="monospace">EN</text>
+    <rect x="30" y="162" width="18" height="10" rx="2" fill="#1a1a1a" stroke="#333" stroke-width=".8"/>
+    <text x="39" y="169" text-anchor="middle" fill="#555" font-size="5" font-family="monospace">BOOT</text>
+    <g fill="#c8a040" stroke="#8a6820" stroke-width=".5">
+      <rect x="12" y="70"  width="10" height="4" rx="1"/><text x="10" y="73.5"  fill="#22d488" font-size="5" font-family="monospace" text-anchor="end">3V3</text>
+      <rect x="12" y="78"  width="10" height="4" rx="1"/><text x="10" y="81.5"  fill="#f05a5a" font-size="5" font-family="monospace" text-anchor="end">GND</text>
+      <rect x="12" y="86"  width="10" height="4" rx="1"/><text x="10" y="89.5"  fill="#4da8f7" font-size="5" font-family="monospace" text-anchor="end">D15</text>
+      <rect x="12" y="94"  width="10" height="4" rx="1"/><text x="10" y="97.5"  fill="#4da8f7" font-size="5" font-family="monospace" text-anchor="end">D2</text>
+      <rect x="12" y="102" width="10" height="4" rx="1"/><text x="10" y="105.5" fill="#a78bfa" font-size="5" font-family="monospace" text-anchor="end">D4</text>
+      <rect x="12" y="110" width="10" height="4" rx="1"/><text x="10" y="113.5" fill="#a78bfa" font-size="5" font-family="monospace" text-anchor="end">RX2</text>
+      <rect x="12" y="118" width="10" height="4" rx="1"/><text x="10" y="121.5" fill="#a78bfa" font-size="5" font-family="monospace" text-anchor="end">TX2</text>
+      <rect x="12" y="126" width="10" height="4" rx="1"/><text x="10" y="129.5" fill="#2eccd4" font-size="5" font-family="monospace" text-anchor="end">D5</text>
+      <rect x="12" y="134" width="10" height="4" rx="1"/><text x="10" y="137.5" fill="#2eccd4" font-size="5" font-family="monospace" text-anchor="end">D18</text>
+      <rect x="12" y="142" width="10" height="4" rx="1"/><text x="10" y="145.5" fill="#2eccd4" font-size="5" font-family="monospace" text-anchor="end">D19</text>
+    </g>
+    <g fill="#c8a040" stroke="#8a6820" stroke-width=".5">
+      <rect x="188" y="70"  width="10" height="4" rx="1"/><text x="200" y="73.5"  fill="#f0a832" font-size="5" font-family="monospace">VIN</text>
+      <rect x="188" y="78"  width="10" height="4" rx="1"/><text x="200" y="81.5"  fill="#f05a5a" font-size="5" font-family="monospace">GND</text>
+      <rect x="188" y="86"  width="10" height="4" rx="1"/><text x="200" y="89.5"  fill="#f0a832" font-size="5" font-family="monospace">A0</text>
+      <rect x="188" y="94"  width="10" height="4" rx="1"/><text x="200" y="97.5"  fill="#f0a832" font-size="5" font-family="monospace">A3</text>
+      <rect x="188" y="102" width="10" height="4" rx="1"/><text x="200" y="105.5" fill="#4da8f7" font-size="5" font-family="monospace">D21</text>
+      <rect x="188" y="110" width="10" height="4" rx="1"/><text x="200" y="113.5" fill="#4da8f7" font-size="5" font-family="monospace">D3</text>
+      <rect x="188" y="118" width="10" height="4" rx="1"/><text x="200" y="121.5" fill="#4da8f7" font-size="5" font-family="monospace">D1</text>
+      <rect x="188" y="126" width="10" height="4" rx="1"/><text x="200" y="129.5" fill="#22d488" font-size="5" font-family="monospace">D22</text>
+      <rect x="188" y="134" width="10" height="4" rx="1"/><text x="200" y="137.5" fill="#22d488" font-size="5" font-family="monospace">D23</text>
+    </g>
+    <g fill="#c8a040" stroke="#8a6820" stroke-width=".5">
+      <rect x="30"  y="278" width="4" height="10" rx="1"/><text x="32"  y="296" text-anchor="middle" fill="#f0a832" font-size="5" font-family="monospace">A4</text>
+      <rect x="40"  y="278" width="4" height="10" rx="1"/><text x="42"  y="296" text-anchor="middle" fill="#f0a832" font-size="5" font-family="monospace">A5</text>
+      <rect x="50"  y="278" width="4" height="10" rx="1"/><text x="52"  y="296" text-anchor="middle" fill="#a78bfa" font-size="5" font-family="monospace">26</text>
+      <rect x="60"  y="278" width="4" height="10" rx="1"/><text x="62"  y="296" text-anchor="middle" fill="#a78bfa" font-size="5" font-family="monospace">25</text>
+      <rect x="70"  y="278" width="4" height="10" rx="1"/><text x="72"  y="296" text-anchor="middle" fill="#2eccd4" font-size="5" font-family="monospace">17</text>
+      <rect x="80"  y="278" width="4" height="10" rx="1"/><text x="82"  y="296" text-anchor="middle" fill="#2eccd4" font-size="5" font-family="monospace">16</text>
+      <rect x="90"  y="278" width="4" height="10" rx="1"/><text x="92"  y="296" text-anchor="middle" fill="#f05a5a" font-size="5" font-family="monospace">GND</text>
+      <rect x="103" y="278" width="4" height="10" rx="1"/><text x="105" y="296" text-anchor="middle" fill="#22d488" font-size="5" font-family="monospace">3V3</text>
+    </g>
+    <text x="105" y="205" text-anchor="middle" fill="#1a3a20" font-size="7" font-family="monospace">Flash 4MB · RAM 520KB</text>
+    <text x="105" y="215" text-anchor="middle" fill="#1a3a20" font-size="6.5" font-family="monospace">WiFi · BT · BLE</text>
+  </svg>
+
+  <div class="sep"></div>
+
+  <div class="panel-title">GPIO ativo</div>
+  <table class="gpio-table">
+    <thead><tr><th>PIN</th><th>FUNÇÃO</th><th>ESTADO</th></tr></thead>
+    <tbody>
+      <tr><td class="pin-num">D4</td><td class="pin-fn">VIB DATA</td><td class="pin-active" id="gpio-vib">HIGH</td></tr>
+      <tr><td class="pin-num">D21</td><td class="pin-fn">DHT22 DATA</td><td class="pin-active" id="gpio-tmp">OK</td></tr>
+      <tr><td class="pin-num">A0</td><td class="pin-fn">INA219 SDA</td><td class="pin-active" id="gpio-elc">OK</td></tr>
+      <tr><td class="pin-num">D22</td><td class="pin-fn">MOTOR PWM</td><td class="pin-active" id="gpio-mtr">75%</td></tr>
+      <tr><td class="pin-num">D23</td><td class="pin-fn">MOTOR DIR</td><td class="pin-active" id="gpio-dir">FWD</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ SENSORS AREA ══ -->
+<div class="sensors-area">
+
+  <!-- Vibration Card -->
+  <div class="card card-vib">
+    <div class="card-header">
+      <div class="card-icon icon-vib">🔔</div>
+      <div>
+        <div class="card-name">Vibração</div>
+        <div class="card-model">SW-420 / MPU-6050</div>
+      </div>
+      <label class="toggle card-enabled" title="Ativar/desativar">
+        <input type="checkbox" id="vib-on" checked onchange="updateSensors()">
+        <span class="slider-tog"></span>
+      </label>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Frequência</span>
+      <input type="range" class="r-purple" id="vib-freq" min="1" max="200" value="50"
+             oninput="updateSlider(this,'vib-freq-v','Hz')">
+      <span class="ctrl-val" id="vib-freq-v">50 Hz</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Amplitude</span>
+      <input type="range" class="r-purple" id="vib-amp" min="0" max="100" value="40"
+             oninput="updateSlider(this,'vib-amp-v','%')">
+      <span class="ctrl-val" id="vib-amp-v">40%</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Limiar</span>
+      <input type="range" class="r-purple" id="vib-thr" min="0" max="100" value="30"
+             oninput="updateSlider(this,'vib-thr-v','%')">
+      <span class="ctrl-val" id="vib-thr-v">30%</span>
+    </div>
+    <div class="readouts">
+      <span class="pill pill-v" id="vib-status">DETECTADO</span>
+      <span class="pill pill-v" id="vib-rms">RMS: 0.28 g</span>
+      <span class="pill pill-v" id="vib-pk">PK: 0.40 g</span>
+    </div>
+  </div>
+
+  <!-- Temperature Card -->
+  <div class="card card-tmp">
+    <div class="card-header">
+      <div class="card-icon icon-tmp">🌡️</div>
+      <div>
+        <div class="card-name">Temperatura</div>
+        <div class="card-model">DHT22 / DS18B20</div>
+      </div>
+      <label class="toggle card-enabled">
+        <input type="checkbox" id="tmp-on" checked onchange="updateSensors()">
+        <span class="slider-tog"></span>
+      </label>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Temperatura</span>
+      <input type="range" class="r-red" id="tmp-temp" min="-20" max="120" value="35"
+             oninput="updateSlider(this,'tmp-temp-v','°C')">
+      <span class="ctrl-val" id="tmp-temp-v">35°C</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Umidade</span>
+      <input type="range" class="r-blue" id="tmp-hum" min="0" max="100" value="68"
+             oninput="updateSlider(this,'tmp-hum-v','%')">
+      <span class="ctrl-val" id="tmp-hum-v">68%</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Variação</span>
+      <input type="range" class="r-red" id="tmp-noise" min="0" max="50" value="5"
+             oninput="updateSlider(this,'tmp-noise-v','‰')">
+      <span class="ctrl-val" id="tmp-noise-v">5‰</span>
+    </div>
+    <div class="readouts">
+      <span class="pill pill-t" id="tmp-status">NORMAL</span>
+      <span class="pill pill-h" id="tmp-hi">HI: 45°C</span>
+      <span class="pill pill-h" id="tmp-lo">LO: 25°C</span>
+    </div>
+  </div>
+
+  <!-- Electrical Card -->
+  <div class="card card-elc">
+    <div class="card-header">
+      <div class="card-icon icon-elc">⚡</div>
+      <div>
+        <div class="card-name">Elétrico</div>
+        <div class="card-model">INA219 / ACS712</div>
+      </div>
+      <label class="toggle card-enabled">
+        <input type="checkbox" id="elc-on" checked onchange="updateSensors()">
+        <span class="slider-tog"></span>
+      </label>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Tensão</span>
+      <input type="range" class="r-amber" id="elc-volt" min="0" max="48" step="0.1" value="12"
+             oninput="updateSliderF(this,'elc-volt-v','V',1)">
+      <span class="ctrl-val" id="elc-volt-v">12.0V</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Corrente</span>
+      <input type="range" class="r-amber" id="elc-curr" min="0" max="20" step="0.1" value="1.5"
+             oninput="updateSliderF(this,'elc-curr-v','A',1)">
+      <span class="ctrl-val" id="elc-curr-v">1.5A</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Ruído</span>
+      <input type="range" class="r-teal" id="elc-noise" min="0" max="100" value="10"
+             oninput="updateSlider(this,'elc-noise-v','‰')">
+      <span class="ctrl-val" id="elc-noise-v">10‰</span>
+    </div>
+    <div class="readouts">
+      <span class="pill pill-pwr" id="elc-pwr">PWR: 18.0W</span>
+      <span class="pill pill-pwr" id="elc-eff">η: 92%</span>
+      <span class="pill pill-ok"  id="elc-status">OK</span>
+    </div>
+  </div>
+
+  <!-- Motor Card -->
+  <div class="card card-mtr">
+    <div class="card-header">
+      <div class="card-icon icon-mtr">⚙️</div>
+      <div>
+        <div class="card-name">Motor DC</div>
+        <div class="card-model">L298N / L293D</div>
+      </div>
+      <label class="toggle card-enabled">
+        <input type="checkbox" id="mtr-on" checked onchange="updateMotor()">
+        <span class="slider-tog"></span>
+      </label>
+    </div>
+    <div class="motor-ring spinning" id="motor-ring">
+      <div class="motor-inner">
+        <span id="motor-rpm" style="color:var(--green);font-size:13px">1500</span>
+        <span style="color:var(--text-3);font-size:9px">RPM</span>
+      </div>
+    </div>
+    <div class="ctrl-row" style="margin-top:4px">
+      <span class="ctrl-label">Velocidade</span>
+      <input type="range" class="r-green" id="mtr-speed" min="0" max="100" value="60"
+             oninput="updateMotor()">
+      <span class="ctrl-val" id="mtr-speed-v">60%</span>
+    </div>
+    <div class="ctrl-row">
+      <span class="ctrl-label">Torque</span>
+      <input type="range" class="r-teal" id="mtr-torq" min="0" max="100" value="40"
+             oninput="updateSlider(this,'mtr-torq-v','%')">
+      <span class="ctrl-val" id="mtr-torq-v">40%</span>
+    </div>
+    <div class="dir-btns">
+      <button class="dir-btn active" id="btn-cw"  onclick="setDir('CW')">↻ CW</button>
+      <button class="dir-btn"        id="btn-ccw" onclick="setDir('CCW')">↺ CCW</button>
+      <button class="dir-btn"        id="btn-brk" onclick="setDir('BRAKE')">⏹ BRAKE</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══ SERIAL MONITOR ══ -->
+<div class="monitor-area">
+  <div class="mon-header">
+    <span>📟 Monitor Serial</span>
+    <span id="mon-baud" style="color:var(--green)">115200 baud</span>
+    <span id="mon-pkts" style="color:var(--text-3)">0 pacotes</span>
+    <button class="mon-clear" onclick="clearMonitor()">limpar</button>
+  </div>
+  <div class="mon-body" id="monitor"></div>
+</div>
+
+<!-- ══ CONNECTION PANEL ══ -->
+<div class="conn-panel">
+  <div>
+    <div class="panel-title" style="margin-bottom:10px">Canais de Saída</div>
+    <div class="ch-row">
+      <span class="ch-name">BroadcastChannel</span>
+      <span class="ch-stat ch-on" id="bc-stat">● ATIVO</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name">HTTP FastAPI</span>
+      <span class="ch-stat ch-off" id="http-stat">○ INATIVO</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name">WebSocket</span>
+      <span class="ch-stat ch-off" id="ws-stat">○ OFFLINE</span>
+    </div>
+    <div class="ch-row">
+      <span class="ch-name">Web Serial</span>
+      <span class="ch-stat" id="serial-stat" style="color:var(--text-3)">○ INDISP.</span>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ══ NOVO: HTTP / FastAPI ══ -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px">🚀 FastAPI Backend</div>
+
+    <div class="field" style="margin-bottom:8px">
+      <label>URL Base</label>
+      <input type="text" id="http-url" value="http://localhost:8000" placeholder="http://host:porta">
+    </div>
+
+    <div class="field" style="margin-bottom:8px">
+      <label>Endpoint</label>
+      <input type="text" id="http-endpoint" value="/api/sensors" placeholder="/api/sensors">
+    </div>
+
+    <div class="field" style="margin-bottom:8px">
+      <label>Device ID</label>
+      <input type="text" id="http-device-id" value="esp32_simulator_01" placeholder="device_id">
+    </div>
+
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button class="btn btn-blue" id="http-btn" onclick="toggleHTTP()" style="font-size:11px">
+        Ativar Envio HTTP
+      </button>
+      <button class="btn" onclick="testHTTP()" style="font-size:11px">Testar</button>
+    </div>
+
+    <div id="http-msg" style="font-size:10px;color:var(--text-3);margin-top:4px;font-family:var(--mono);line-height:1.6"></div>
+
+    <!-- Latência e taxa de envio HTTP -->
+    <div id="http-stats" style="display:none;margin-top:8px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="http-latency" id="http-lat">lat: —</span>
+        <span class="http-latency" id="http-ok-count" style="color:var(--green)">ok: 0</span>
+        <span class="http-latency" id="http-err-count" style="color:var(--red)">err: 0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- WebSocket Config -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px">WebSocket</div>
+    <div class="field" style="margin-bottom:8px">
+      <label>URL do servidor</label>
+      <input type="text" id="ws-url" value="ws://localhost:8080" placeholder="ws://host:porta">
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-green" id="ws-btn" onclick="toggleWS()" style="font-size:11px">Conectar</button>
+      <button class="btn" onclick="testWS()" style="font-size:11px">Testar</button>
+    </div>
+    <div id="ws-msg" style="font-size:10px;color:var(--text-3);margin-top:5px;font-family:var(--mono)"></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Web Serial -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px">Porta Serial</div>
+    <div class="field" style="margin-bottom:8px">
+      <label>Baud Rate</label>
+      <select id="baud-sel">
+        <option>9600</option><option>19200</option>
+        <option selected>115200</option><option>230400</option>
+      </select>
+    </div>
+    <button class="btn" onclick="openSerial()" id="serial-btn" style="font-size:11px">
+      Abrir Porta Serial
+    </button>
+    <div id="serial-msg" style="font-size:10px;color:var(--text-3);margin-top:5px;font-family:var(--mono)"></div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Data Rate -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px">Configuração</div>
+    <div class="field" style="margin-bottom:8px">
+      <label>Intervalo de envio</label>
+      <select id="rate-sel" onchange="setRate(this.value)">
+        <option value="50">50ms (20Hz)</option>
+        <option value="100" selected>100ms (10Hz)</option>
+        <option value="200">200ms (5Hz)</option>
+        <option value="500">500ms (2Hz)</option>
+        <option value="1000">1000ms (1Hz)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Formato (WS/Serial)</label>
+      <select id="fmt-sel">
+        <option value="json">JSON</option>
+        <option value="csv">CSV</option>
+        <option value="raw">RAW</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- Stats -->
+  <div>
+    <div class="panel-title" style="margin-bottom:8px">Estatísticas</div>
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="lbl">Enviados</div>
+        <div class="val" id="st-sent" style="color:var(--green)">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="lbl">Erros</div>
+        <div class="val" id="st-err" style="color:var(--red)">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="lbl">Uptime</div>
+        <div class="val" id="st-uptime" style="color:var(--blue)">0s</div>
+      </div>
+      <div class="stat-box">
+        <div class="lbl">Subs BC</div>
+        <div class="val" id="st-subs" style="color:var(--purple)">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Protocol doc -->
+  <div style="background:var(--bg3);border-radius:6px;padding:10px;font-size:10px;font-family:var(--mono);color:var(--text-3);line-height:1.8">
+    <div style="color:var(--amber);margin-bottom:4px">// BroadcastChannel Protocol</div>
+    <div>Canal: <span style="color:var(--green)">"esp32_simulator"</span></div>
+    <div style="margin-top:4px">Para integrar no projeto:</div>
+    <div style="color:var(--blue)">const ch = new BroadcastChannel(</div>
+    <div style="color:var(--blue)">  "esp32_simulator");</div>
+    <div style="color:var(--blue)">ch.onmessage = (e) => {'{'};</div>
+    <div style="color:var(--blue)">  if(e.data.type==="DATA")</div>
+    <div style="color:var(--blue)">    usarDados(e.data.payload);</div>
+    <div style="color:var(--blue)">{'}'};</div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<script>
+// ── STATE ──
+let controlActive = false;
+let ws = null;
+let serialPort = null;
+let serialWriter = null;
+let motorDir = 'CW';
+let pktCount = 0;
+let errCount = 0;
+let startTime = Date.now();
+let interval = 100;
+let timer = null;
+let bc = null;
+
+// ── HTTP STATE ──
+let httpActive = false;
+let httpOkCount = 0;
+let httpErrCount = 0;
+let httpTickCounter = 0;
+const HTTP_EVERY_N_TICKS = 1;
+
+// BroadcastChannel setup
+try {
+  bc = new BroadcastChannel('esp32_simulator');
+  bc.onmessage = (e) => {
+    if (e.data && e.data.type === 'PING') {
+      bc.postMessage({ type: 'PONG', source: 'web_simulator' });
+    }
+  };
+  document.getElementById('bc-stat').textContent = '● ATIVO';
+  document.getElementById('bc-stat').className = 'ch-stat ch-on';
+} catch(err) {
+  document.getElementById('bc-stat').textContent = '○ ERRO';
+}
+
+// Web Serial availability
+if ('serial' in navigator) {
+  document.getElementById('serial-stat').textContent = '○ DISPONÍVEL';
+  document.getElementById('serial-stat').style.color = 'var(--text-2)';
+}
+
+// ── HELPERS ──
+function updateSlider(el, outId, unit) {
+  document.getElementById(outId).textContent = el.value + unit;
+  updateSensors();
+}
+function updateSliderF(el, outId, unit, dec) {
+  document.getElementById(outId).textContent = parseFloat(el.value).toFixed(dec) + unit;
+  updateSensors();
+}
+
+// ── SENSOR READ ──
+function getSensorData() {
+  const ts = Math.floor((Date.now() - startTime) / 1000 * 1000);
+  const noise = (v, pct) => v * (1 + (Math.random()-0.5) * pct * 0.001 * 2);
+  const vibOn = document.getElementById('vib-on').checked;
+  const tmpOn = document.getElementById('tmp-on').checked;
+  const elcOn = document.getElementById('elc-on').checked;
+  const mtrOn = document.getElementById('mtr-on').checked;
+
+  const freq  = parseFloat(document.getElementById('vib-freq').value);
+  const amp   = parseFloat(document.getElementById('vib-amp').value);
+  const thr   = parseFloat(document.getElementById('vib-thr').value);
+  const nVib  = parseFloat(document.getElementById('vib-amp').value);
+
+  const temp  = parseFloat(document.getElementById('tmp-temp').value);
+  const hum   = parseFloat(document.getElementById('tmp-hum').value);
+  const nTmp  = parseFloat(document.getElementById('tmp-noise').value);
+
+  const volt  = parseFloat(document.getElementById('elc-volt').value);
+  const curr  = parseFloat(document.getElementById('elc-curr').value);
+  const nElc  = parseFloat(document.getElementById('elc-noise').value);
+
+  const spd   = parseFloat(document.getElementById('mtr-speed').value);
+  const torq  = parseFloat(document.getElementById('mtr-torq').value);
+  const pwm   = Math.round(spd * 2.55);
+  const rpm   = Math.round(spd * 25 * noise(1, 20));
+
+  const ampN  = noise(amp / 100, nVib);
+  const tempN = noise(temp, nTmp);
+  const humN  = Math.min(100, Math.max(0, noise(hum, nTmp)));
+  const voltN = noise(volt, nElc);
+  const currN = noise(curr, nElc);
+  const pwr   = +(voltN * currN).toFixed(2);
+
+  return {
+    timestamp: ts,
+    vibration: vibOn ? {
+      enabled: true,
+      frequency: freq,
+      amplitude: +ampN.toFixed(3),
+      threshold: thr,
+      detected: ampN > thr/100,
+      rms: +(ampN * 0.707).toFixed(3),
+      unit: 'g'
+    } : { enabled: false },
+    temperature: tmpOn ? {
+      enabled: true,
+      celsius: +tempN.toFixed(2),
+      fahrenheit: +(tempN * 9/5 + 32).toFixed(2),
+      humidity: +humN.toFixed(1),
+      heatIndex: +(tempN + (humN > 40 ? (humN-40)*0.12 : 0)).toFixed(2)
+    } : { enabled: false },
+    electrical: elcOn ? {
+      enabled: true,
+      voltage: +voltN.toFixed(3),
+      current: +currN.toFixed(3),
+      power: pwr,
+      efficiency: +(92 - (currN > 5 ? (currN-5)*2 : 0)).toFixed(1)
+    } : { enabled: false },
+    motor: mtrOn ? {
+      enabled: true,
+      speed: spd,
+      pwm: pwm,
+      rpm: rpm,
+      direction: motorDir,
+      torque: torq,
+      status: motorDir === 'BRAKE' ? 'BRAKING' : (spd > 0 ? 'RUNNING' : 'IDLE')
+    } : { enabled: false }
+  };
+}
+
+// ── MONTA PAYLOAD NO FORMATO SimulatorPayload (FastAPI) ──
+function buildFastAPIPayload(d) {
+  const deviceId = document.getElementById('http-device-id').value.trim() || 'esp32_simulator_01';
+  return {
+    device_id: deviceId,
+    timestamp: d.timestamp,
+    vibration: {
+      detected:  d.vibration.enabled  ? d.vibration.detected   : false,
+      amplitude: d.vibration.enabled  ? d.vibration.amplitude  : 0.0,
+      frequency: d.vibration.enabled  ? d.vibration.frequency  : 0.0,
+    },
+    temperature: {
+      celsius:  d.temperature.enabled ? d.temperature.celsius  : 0.0,
+      humidity: d.temperature.enabled ? d.temperature.humidity : 0.0,
+    },
+    electrical: {
+      voltage: d.electrical.enabled ? d.electrical.voltage : 0.0,
+      current: d.electrical.enabled ? d.electrical.current : 0.0,
+      power:   d.electrical.enabled ? d.electrical.power   : 0.0,
+    },
+    motor: {
+      speed: d.motor.enabled ? Math.round(d.motor.speed) : 0,
+      rpm:   d.motor.enabled ? d.motor.rpm               : 0,
+    }
+  };
+}
+
+// ── ENVIA PARA FASTAPI VIA HTTP POST ──
+async function sendHTTP(data) {
+  const base     = document.getElementById('http-url').value.trim().replace(/\/$/, '');
+  const endpoint = document.getElementById('http-endpoint').value.trim();
+  const url      = base + endpoint;
+  const payload  = buildFastAPIPayload(data);
+  const t0       = performance.now();
+
+  try {
+    const resp = await fetch(url, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+      signal:  AbortSignal.timeout(5000),   // timeout 5s
+    });
+
+    const lat = Math.round(performance.now() - t0);
+
+    if (resp.ok) {
+      httpOkCount++;
+      document.getElementById('http-lat').textContent       = 'lat: ' + lat + 'ms';
+      document.getElementById('http-ok-count').textContent  = 'ok: ' + httpOkCount;
+      // Mostra resposta do backend no monitor a cada 10 envios
+      if (httpOkCount % 10 === 1) {
+        const body = await resp.json().catch(() => ({}));
+        logMonitor('HTTP → ' + url + ' [' + resp.status + '] ' + JSON.stringify(body), 'mon-ok');
+      }
+    } else {
+      httpErrCount++;
+      document.getElementById('http-err-count').textContent = 'err: ' + httpErrCount;
+      logMonitor('HTTP ' + resp.status + ' ← ' + url, 'mon-err');
+    }
+  } catch (e) {
+    httpErrCount++;
+    errCount++;
+    document.getElementById('http-err-count').textContent = 'err: ' + httpErrCount;
+    // Não spama o monitor com timeout — só loga a cada 5 erros
+    if (httpErrCount % 5 === 1) {
+      logMonitor('HTTP erro: ' + e.message + ' → ' + url, 'mon-err');
+    }
+  }
+}
+
+// ── ATIVA HTTP (sem alternar) — usado no boot e ao assumir controle ──
+function enableHttpAuto() {
+  if (httpActive) return;
+  // Para o simulador Python no backend para não conflitar com o web
+  const base = document.getElementById('http-url').value.trim().replace(/\/$/, '');
+  fetch(base + '/api/simulator/stop', { method: 'POST' }).catch(() => {});
+  httpActive = true;
+  const btn = document.getElementById('http-btn');
+  btn.textContent = 'Desativar HTTP';
+  btn.className   = 'btn btn-red';
+  document.getElementById('http-stat').textContent  = '● ATIVO';
+  document.getElementById('http-stat').className    = 'ch-stat ch-http-on';
+  document.getElementById('http-status').style.display = 'flex';
+  document.getElementById('http-stats').style.display  = 'block';
+  document.getElementById('http-msg').textContent   = '✓ Enviando para ' +
+    document.getElementById('http-url').value +
+    document.getElementById('http-endpoint').value;
+  document.getElementById('http-msg').style.color   = 'var(--green)';
+  sendHTTP(getSensorData());
+}
+
+// ── TOGGLE HTTP ATIVO ──
+function toggleHTTP() {
+  httpActive = !httpActive;
+  const btn = document.getElementById('http-btn');
+  if (httpActive) {
+    btn.textContent = 'Desativar HTTP';
+    btn.className   = 'btn btn-red';
+    document.getElementById('http-stat').textContent  = '● ATIVO';
+    document.getElementById('http-stat').className    = 'ch-stat ch-http-on';
+    document.getElementById('http-status').style.display = 'flex';
+    document.getElementById('http-stats').style.display  = 'block';
+    document.getElementById('http-msg').textContent   = '✓ Enviando para ' +
+      document.getElementById('http-url').value +
+      document.getElementById('http-endpoint').value;
+    document.getElementById('http-msg').style.color   = 'var(--green)';
+    logMonitor('HTTP ativo → POST ' +
+      document.getElementById('http-url').value +
+      document.getElementById('http-endpoint').value, 'mon-ok');
+    // Envia um pacote de teste imediatamente
+    sendHTTP(getSensorData());
+  } else {
+    btn.textContent = 'Ativar Envio HTTP';
+    btn.className   = 'btn btn-blue';
+    document.getElementById('http-stat').textContent  = '○ INATIVO';
+    document.getElementById('http-stat').className    = 'ch-stat ch-off';
+    document.getElementById('http-status').style.display = 'none';
+    document.getElementById('http-stats').style.display  = 'none';
+    document.getElementById('http-msg').textContent   = '○ Envio HTTP desativado';
+    document.getElementById('http-msg').style.color   = 'var(--text-3)';
+    logMonitor('HTTP desativado', 'mon-warn');
+  }
+}
+
+// ── TESTE PONTUAL HTTP ──
+async function testHTTP() {
+  const base     = document.getElementById('http-url').value.trim().replace(/\/$/, '');
+  const endpoint = document.getElementById('http-endpoint').value.trim();
+  const url      = base + endpoint;
+  document.getElementById('http-msg').textContent  = '⏳ Testando ' + url + '…';
+  document.getElementById('http-msg').style.color  = 'var(--text-2)';
+
+  const data    = getSensorData();
+  const payload = buildFastAPIPayload(data);
+  const t0      = performance.now();
+  try {
+    const resp = await fetch(url, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+      signal:  AbortSignal.timeout(5000),
+    });
+    const lat  = Math.round(performance.now() - t0);
+    const body = await resp.json().catch(() => ({}));
+    if (resp.ok) {
+      document.getElementById('http-msg').textContent = '✓ ' + resp.status + ' OK · ' + lat + 'ms\n' + JSON.stringify(body);
+      document.getElementById('http-msg').style.color = 'var(--green)';
+      logMonitor('HTTP teste OK [' + lat + 'ms]: ' + JSON.stringify(body), 'mon-ok');
+    } else {
+      document.getElementById('http-msg').textContent = '✗ HTTP ' + resp.status + ' · ' + lat + 'ms';
+      document.getElementById('http-msg').style.color = 'var(--red)';
+    }
+  } catch (e) {
+    document.getElementById('http-msg').textContent = '✗ ' + e.message + '\nVerifique se o FastAPI está rodando e o CORS habilitado.';
+    document.getElementById('http-msg').style.color = 'var(--red)';
+    logMonitor('HTTP teste falhou: ' + e.message, 'mon-err');
+  }
+}
+
+// ── UPDATE UI READOUTS ──
+function updateSensors() {
+  const d = getSensorData();
+
+  if (d.vibration.enabled) {
+    const det = d.vibration.detected;
+    document.getElementById('vib-status').textContent = det ? '⚡ DETECTADO' : '· ESTÁVEL';
+    document.getElementById('vib-status').className = 'pill pill-v';
+    document.getElementById('vib-rms').textContent = 'RMS: ' + d.vibration.rms + ' g';
+    document.getElementById('vib-pk').textContent  = 'PK: '  + d.vibration.amplitude + ' g';
+    document.getElementById('gpio-vib').textContent = det ? 'HIGH' : 'LOW';
+  } else {
+    document.getElementById('vib-status').textContent = '○ DESATIVO';
+    document.getElementById('gpio-vib').textContent = '—';
+  }
+
+  if (d.temperature.enabled) {
+    const t = d.temperature.celsius;
+    const hot = t > 80;
+    document.getElementById('tmp-status').textContent = hot ? '⚠ ALTO' : '✓ NORMAL';
+    document.getElementById('tmp-status').className  = 'pill ' + (hot ? 'pill-warn' : 'pill-t');
+    document.getElementById('tmp-hi').textContent = 'TEMP: ' + t.toFixed(1) + '°C';
+    document.getElementById('tmp-lo').textContent = 'HUM: '  + d.temperature.humidity.toFixed(1) + '%';
+    document.getElementById('gpio-tmp').textContent = t.toFixed(1) + '°C';
+  } else {
+    document.getElementById('tmp-status').textContent = '○ DESATIVO';
+    document.getElementById('gpio-tmp').textContent = '—';
+  }
+
+  if (d.electrical.enabled) {
+    const over = d.electrical.current > 15;
+    document.getElementById('elc-pwr').textContent    = 'PWR: ' + d.electrical.power.toFixed(1) + 'W';
+    document.getElementById('elc-eff').textContent    = 'η: '   + d.electrical.efficiency + '%';
+    document.getElementById('elc-status').textContent = over ? '⚠ SOBRECARGA' : '✓ OK';
+    document.getElementById('elc-status').className   = 'pill ' + (over ? 'pill-warn' : 'pill-ok');
+    document.getElementById('gpio-elc').textContent   = d.electrical.voltage.toFixed(1) + 'V';
+  } else {
+    document.getElementById('elc-status').textContent = '○ DESATIVO';
+    document.getElementById('gpio-elc').textContent = '—';
+  }
+
+  updateMotor();
+}
+
+function updateMotor() {
+  const on  = document.getElementById('mtr-on').checked;
+  const spd = parseFloat(document.getElementById('mtr-speed').value);
+  const rpm = Math.round(spd * 25);
+  document.getElementById('mtr-speed-v').textContent = spd + '%';
+  document.getElementById('motor-rpm').textContent   = on ? rpm : '0';
+  document.getElementById('gpio-mtr').textContent    = on ? spd + '%' : '—';
+  document.getElementById('gpio-dir').textContent    = on ? motorDir : '—';
+
+  const ring = document.getElementById('motor-ring');
+  if (on && spd > 0 && motorDir !== 'BRAKE') {
+    ring.classList.add('spinning');
+    ring.classList.toggle('ccw', motorDir === 'CCW');
+    ring.style.borderTopColor = 'var(--green)';
+    const dur = Math.max(0.3, 3 - spd * 0.025);
+    ring.style.animationDuration = dur + 's';
+  } else {
+    ring.classList.remove('spinning');
+    ring.style.borderTopColor = motorDir === 'BRAKE' ? 'var(--red)' : 'var(--bg4)';
+  }
+}
+
+function setDir(d) {
+  motorDir = d;
+  ['CW','CCW','BRAKE'].forEach(x => {
+    document.getElementById('btn-' + x.toLowerCase().replace('brake','brk'))
+      .classList.toggle('active', x === d);
+  });
+  updateMotor();
+}
+
+// ── FORMAT DATA (WS / Serial) ──
+function formatData(d) {
+  const fmt = document.getElementById('fmt-sel').value;
+  if (fmt === 'json') return JSON.stringify(d);
+  if (fmt === 'csv') {
+    return [
+      d.timestamp,
+      d.vibration.enabled  ? d.vibration.amplitude  : 'NaN',
+      d.vibration.enabled  ? d.vibration.frequency   : 'NaN',
+      d.temperature.enabled? d.temperature.celsius    : 'NaN',
+      d.temperature.enabled? d.temperature.humidity   : 'NaN',
+      d.electrical.enabled ? d.electrical.voltage     : 'NaN',
+      d.electrical.enabled ? d.electrical.current     : 'NaN',
+      d.electrical.enabled ? d.electrical.power       : 'NaN',
+      d.motor.enabled      ? d.motor.rpm              : 'NaN',
+      d.motor.enabled      ? d.motor.speed            : 'NaN',
+    ].join(',');
+  }
+  return `VIB:${d.vibration.enabled?d.vibration.amplitude:'X'} TMP:${d.temperature.enabled?d.temperature.celsius:'X'} HUM:${d.temperature.enabled?d.temperature.humidity:'X'} V:${d.electrical.enabled?d.electrical.voltage:'X'} I:${d.electrical.enabled?d.electrical.current:'X'} RPM:${d.motor.enabled?d.motor.rpm:'X'}`;
+}
+
+// ── SERIAL MONITOR ──
+let monLines = 0;
+function logMonitor(text, cls='mon-data') {
+  const mon = document.getElementById('monitor');
+  const ts  = ((Date.now() - startTime)/1000).toFixed(1);
+  const div = document.createElement('div');
+  div.className = 'mon-line';
+  div.innerHTML = `<span class="mon-ts">${ts}s</span><span class="${cls}">${escHtml(text)}</span>`;
+  mon.appendChild(div);
+  if (++monLines > 200) mon.removeChild(mon.firstChild);
+  mon.scrollTop = mon.scrollHeight;
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function clearMonitor() {
+  document.getElementById('monitor').innerHTML = '';
+  monLines = 0;
+}
+
+// ── MAIN LOOP ──
+function tick() {
+  const data = getSensorData();
+  const payload = formatData(data);
+  pktCount++;
+  document.getElementById('mon-pkts').textContent = pktCount + ' pacotes';
+  document.getElementById('st-sent').textContent = pktCount;
+  document.getElementById('st-uptime').textContent = Math.floor((Date.now()-startTime)/1000) + 's';
+
+  // BroadcastChannel
+  if (bc && controlActive) {
+    try {
+      bc.postMessage({ type: 'DATA', source: 'web_simulator', payload: data, raw: payload });
+    } catch(e) { errCount++; }
+  }
+
+  // ── HTTP → FastAPI (envia em todo tick quando ativo) ──
+  if (httpActive) {
+    httpTickCounter++;
+    if (httpTickCounter >= HTTP_EVERY_N_TICKS) {
+      httpTickCounter = 0;
+      sendHTTP(data); // async, não bloqueia o tick
+    }
+  }
+
+  // WebSocket
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    try { ws.send(payload); } catch(e) { errCount++; }
+  }
+
+  // Serial
+  if (serialWriter) {
+    try {
+      const enc = new TextEncoder();
+      serialWriter.write(enc.encode(payload + '\n'));
+    } catch(e) { errCount++; }
+  }
+
+  // Monitor (every 2nd tick)
+  if (pktCount % 2 === 0) {
+    const cls = data.vibration.detected ? 'mon-warn' : 'mon-data';
+    logMonitor(payload.substring(0, 120) + (payload.length > 120 ? '…' : ''), cls);
+  }
+  document.getElementById('st-err').textContent = errCount;
+  updateSensors();
+}
+
+function startLoop() {
+  if (timer) clearInterval(timer);
+  timer = setInterval(tick, interval);
+}
+
+function setRate(v) {
+  interval = parseInt(v);
+  document.getElementById('hz-label').textContent = v + 'ms';
+  document.getElementById('mon-baud').textContent =
+    interval <= 50 ? '230400 baud' : interval <= 100 ? '115200 baud' : '9600 baud';
+  startLoop();
+}
+
+// ── CONTROL TAKEOVER ──
+function toggleControl() {
+  controlActive = !controlActive;
+  const btn = document.getElementById('ctrl-btn');
+  if (controlActive) {
+    btn.textContent = '⏹ LIBERAR CONTROLE';
+    btn.classList.add('releasing');
+    logMonitor('SIMULATOR_READY: web_simulator assumiu o controle', 'mon-ok');
+    if (bc) bc.postMessage({ type: 'SIMULATOR_READY', source: 'web_simulator' });
+    enableHttpAuto();
+  } else {
+    btn.textContent = '▶ ASSUMIR CONTROLE';
+    btn.classList.remove('releasing');
+    logMonitor('SIMULATOR_RELEASED: controle devolvido ao projeto', 'mon-warn');
+    if (bc) bc.postMessage({ type: 'SIMULATOR_RELEASED', source: 'web_simulator' });
+  }
+}
+
+// ── WEBSOCKET ──
+let wsConnected = false;
+function toggleWS() {
+  if (wsConnected) { disconnectWS(); return; }
+  const url = document.getElementById('ws-url').value.trim();
+  document.getElementById('ws-msg').textContent = 'Conectando…';
+  try {
+    ws = new WebSocket(url);
+    ws.onopen = () => {
+      wsConnected = true;
+      document.getElementById('ws-btn').textContent = 'Desconectar';
+      document.getElementById('ws-btn').className   = 'btn btn-red';
+      document.getElementById('ws-stat').textContent = '● ONLINE';
+      document.getElementById('ws-stat').className  = 'ch-stat ch-on';
+      document.getElementById('ws-status').style.display = 'flex';
+      document.getElementById('ws-msg').textContent = '✓ Conectado em ' + url;
+      logMonitor('WebSocket conectado: ' + url, 'mon-ok');
+    };
+    ws.onclose = () => { wsConnected = false; disconnectWS(); };
+    ws.onerror = (e) => {
+      document.getElementById('ws-msg').textContent = '✗ Erro: não foi possível conectar';
+      logMonitor('WebSocket erro: ' + url, 'mon-err');
+      disconnectWS();
+    };
+  } catch(e) {
+    document.getElementById('ws-msg').textContent = '✗ URL inválida';
+  }
+}
+function disconnectWS() {
+  wsConnected = false;
+  if (ws) { try { ws.close(); } catch(e){} ws = null; }
+  document.getElementById('ws-btn').textContent = 'Conectar';
+  document.getElementById('ws-btn').className   = 'btn btn-green';
+  document.getElementById('ws-stat').textContent = '○ OFFLINE';
+  document.getElementById('ws-stat').className  = 'ch-stat ch-off';
+  document.getElementById('ws-status').style.display = 'none';
+}
+function testWS() {
+  document.getElementById('ws-msg').textContent = 'Para testar: inicie um servidor WebSocket em localhost:8080 e clique Conectar.';
+}
+
+// ── WEB SERIAL ──
+async function openSerial() {
+  if (!('serial' in navigator)) {
+    document.getElementById('serial-msg').textContent = '✗ Web Serial não suportado neste navegador. Use Chrome.';
+    return;
+  }
+  if (serialPort) { await closeSerial(); return; }
+  try {
+    const baud = parseInt(document.getElementById('baud-sel').value);
+    serialPort = await navigator.serial.requestPort();
+    await serialPort.open({ baudRate: baud });
+    serialWriter = serialPort.writable.getWriter();
+    document.getElementById('serial-btn').textContent = 'Fechar Porta Serial';
+    document.getElementById('serial-stat').textContent = '● ABERTA';
+    document.getElementById('serial-stat').style.color = 'var(--green)';
+    document.getElementById('serial-msg').textContent = '✓ Porta serial aberta @ ' + baud + ' baud';
+    logMonitor('Porta serial aberta @ ' + baud + ' baud', 'mon-ok');
+  } catch(e) {
+    document.getElementById('serial-msg').textContent = '✗ ' + e.message;
+  }
+}
+async function closeSerial() {
+  if (serialWriter) { try { serialWriter.releaseLock(); } catch(e){} serialWriter = null; }
+  if (serialPort) { try { await serialPort.close(); } catch(e){} serialPort = null; }
+  document.getElementById('serial-btn').textContent = 'Abrir Porta Serial';
+  document.getElementById('serial-stat').textContent = '○ FECHADA';
+  document.getElementById('serial-stat').style.color = 'var(--text-3)';
+}
+
+// ── BOOT ──
+logMonitor('ESP32 Simulator v1.2 iniciando…', 'mon-ok');
+logMonitor('BroadcastChannel: "esp32_simulator" → ATIVO', 'mon-ok');
+logMonitor('Sensores: VIB | DHT22 | INA219 | MOTOR', 'mon-data');
+startLoop();
+
+// Auto HTTP quando servido pelo FastAPI (localhost:8000/simulator)
+(function initHttpAuto() {
+  const port = window.location.port || (window.location.protocol === 'https:' ? '443' : '80');
+  const onBackend = port === '8000' || window.location.pathname.startsWith('/simulator');
+  if (onBackend) {
+    document.getElementById('http-url').value = window.location.origin;
+    enableHttpAuto();
+    logMonitor('HTTP → POST ' + window.location.origin + '/api/sensors (automático)', 'mon-ok');
+    logMonitor('Dashboard: http://localhost:3000 — gráficos e OS atualizam com os dados.', 'mon-data');
+  } else {
+    logMonitor('Abra http://localhost:8000/simulator ou ative "Envio HTTP" manualmente.', 'mon-warn');
+  }
+  logMonitor('Para testar OS: temp ≥85°C, vibração ≥50%, corrente alta.', 'mon-warn');
+})();
+
+setTimeout(() => {
+  updateSlider(document.getElementById('vib-freq'), 'vib-freq-v', 'Hz');
+  updateSlider(document.getElementById('vib-amp'),  'vib-amp-v', '%');
+  updateSlider(document.getElementById('vib-thr'),  'vib-thr-v', '%');
+  updateSlider(document.getElementById('tmp-temp'), 'tmp-temp-v', '°C');
+  updateSlider(document.getElementById('tmp-hum'),  'tmp-hum-v', '%');
+  updateSlider(document.getElementById('tmp-noise'),'tmp-noise-v', '‰');
+  updateSliderF(document.getElementById('elc-volt'),'elc-volt-v', 'V', 1);
+  updateSliderF(document.getElementById('elc-curr'),'elc-curr-v', 'A', 1);
+  updateSlider(document.getElementById('elc-noise'),'elc-noise-v', '‰');
+  updateSlider(document.getElementById('mtr-torq'), 'mtr-torq-v', '%');
+}, 100);
+</script>
+</body>
+</html>

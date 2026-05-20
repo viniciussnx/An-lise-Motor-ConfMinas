@@ -147,7 +147,7 @@ export default function Dashboard() {
   return (
     <>
       <Head>
-        <title>Motor Monitor — CONFIMINAS</title>
+        <title>ConfiMinas Engenharia — Monitoramento Preditivo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -178,11 +178,16 @@ export default function Dashboard() {
 
           <ChartsRow readings={readings} hasData={hasData} nominal={nominal} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <StatusGauge label="Temperatura" value={hasData ? last?.temperature : 0} unit="°C"
               min={20} max={100} alertAt={75} criticalAt={85} hasData={hasData} />
             <StatusGauge label="Vibração" value={hasData ? last?.vibration : 0} unit="mm/s"
               min={0} max={50} alertAt={25} criticalAt={35} hasData={hasData} />
+            <StatusGauge label="Corrente" value={hasData ? last?.current : 0} unit="A"
+              min={0} max={Math.max(15, Math.ceil(nominal * 1.5))}
+              alertAt={nominal * 1.2} criticalAt={nominal * 1.35}
+              hasData={hasData} decimals={2}
+              sensorStatus={hasData ? status?.current_status : 'no_data'} />
           </div>
 
           <section>
