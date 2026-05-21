@@ -1,16 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { API, apiFetch } from '../lib/api';
 
-const API = 'http://localhost:8000';
 const POLL_MS = 4000;
 const READINGS_LIMIT = 28;
 /** Alinhado ao backend: sem leitura nova ≈ simulador/placa parados */
 const LIVE_MS = 12000;
-
-function readingsChanged(prev, next) {
-  if (prev.length !== next.length) return true;
-  if (!next.length) return false;
-  return prev[prev.length - 1]?.id !== next[next.length - 1]?.id;
-}
 
 function statusChanged(prev, next) {
   if (!prev || !next) return true;
@@ -66,9 +60,9 @@ export default function useMotorData() {
     busy.current = true;
     try {
       const [r, s, o] = await Promise.all([
-        fetch(`${API}/api/readings?limit=${READINGS_LIMIT}`).then((x) => x.json()),
-        fetch(`${API}/api/status`).then((x) => x.json()),
-        fetch(`${API}/api/service-orders`).then((x) => x.json()),
+        apiFetch(`/api/readings?limit=${READINGS_LIMIT}`).then((x) => x.json()),
+        apiFetch(`/api/status`).then((x) => x.json()),
+        apiFetch(`/api/service-orders`).then((x) => x.json()),
       ]);
 
       const live = isLiveStatus(s);

@@ -1,165 +1,158 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ═══════════════════════════════════════════════════════════════
-#  DEMANDA CONFIMINAS — Script de Inicialização
+#  ConfiMinas — Motor Monitor · script de inicialização
 #
 #  Uso:
-#    ./start.sh               → simulador perfil "normal"
-#    ./start.sh --cycle       → alterna perfis automaticamente
-#    ./start.sh --real        → só backend (ESP32 envia dados reais)
-#    ./start.sh --profile failure → perfil específico
+#    ./start.sh                       → simulador (perfil "normal")
+#    ./start.sh --cycle               → simulador alternando perfis
+#    ./start.sh --profile failure     → perfil específico
+#    ./start.sh --real                → só backend (aguarda ESP32 real)
+#    ./start.sh --no-sim              → alias de --real
+#
+#  Variáveis aceitas:
+#    AUTH_USER      (default: master)
+#    AUTH_PASS      (default: master)
+#    AUTH_DISABLED  (default: false)  — true desativa autenticação
+#    BACKEND_PORT   (default: 8000)
+#    DASHBOARD_PORT (default: 3000)
 # ═══════════════════════════════════════════════════════════════
 
-set -e
+set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
 PROFILE="normal"
 CYCLE=false
 REAL_ESP32=false
 
 while [[ "$#" -gt 0 ]]; do
-  case $1 in
-    --cycle)   CYCLE=true ;;
-    --real)    REAL_ESP32=true ;;
-    --profile) PROFILE="$2"; shift ;;
-    *) echo "Opção desconhecida: $1"; exit 1 ;;
+  case "$1" in
+    --cycle)         CYCLE=true ;;
+    --real|--no-sim) REAL_ESP32=true ;;
+    --profile)       PROFILE="${2:?--profile precisa de valor}"; shift ;;
+    -h|--help)
+      sed -n '2,18p' "$0"; exit 0 ;;
+    *) echo "Opção desconhecida: $1" >&2; exit 1 ;;
   esac
   shift
 done
 
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+DASHBOARD_PORT="${DASHBOARD_PORT:-3000}"
+export AUTH_USER="${AUTH_USER:-Vinícius}"
+export AUTH_PASS="${AUTH_PASS:-master}"
+export AUTH_DISABLED="${AUTH_DISABLED:-false}"
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[0;34m'; CYAN='\033[0;36m'; NC='\033[0m'
 
-echo ""
-echo -e "${CYAN}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║   Motor Monitor — CONFIMINAS   v1.0.0        ║${NC}"
-echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
-echo ""
+printf '\n%b' "${CYAN}╔══════════════════════════════════════════════════╗${NC}\n"
+printf '%b'   "${CYAN}║   ConfiMinas — Motor Monitor   v2.1.0            ║${NC}\n"
+printf '%b'   "${CYAN}╚══════════════════════════════════════════════════╝${NC}\n\n"
 
-# ─── Verifica dependências ────────────────────────────────────
-echo -e "${BLUE}[1/4]${NC} Verificando dependências..."
+# ── Dependências ─────────────────────────────────────────────
+printf '%b' "${BLUE}[1/4]${NC} Verificando dependências...\n"
+command -v node    >/dev/null || { printf '%b' "${RED}[ERR]${NC} Node.js não encontrado.\n";    exit 1; }
+command -v python3 >/dev/null || { printf '%b' "${RED}[ERR]${NC} Python 3 não encontrado.\n"; exit 1; }
 
-if ! command -v python3 &>/dev/null; then
-  echo -e "${RED}[ERR]${NC} Python 3 não encontrado."
-  exit 1
-fi
-if ! command -v node &>/dev/null; then
-  echo -e "${RED}[ERR]${NC} Node.js não encontrado."
-  exit 1
-fi
-echo -e "${GREEN}[OK]${NC}  Python $(python3 --version 2>&1 | cut -d' ' -f2) | Node $(node --version)"
-
-# ─── Virtualenv + dependências Python ─────────────────────────
-echo -e "\n${BLUE}[2/4]${NC} Configurando ambiente Python (venv)..."
-VENV_DIR="$SCRIPT_DIR/.venv"
-
-# pydantic-core exige Python <= 3.12. Buscar versão compatível.
+# pydantic-core requer Python 3.10–3.13 (algumas builds)
 PYTHON_BIN=""
-for candidate in python3.12 python3.11 python3.10; do
-  if command -v "$candidate" &>/dev/null; then
-    PYTHON_BIN="$candidate"
-    break
-  fi
+for c in python3.13 python3.12 python3.11 python3.10; do
+  if command -v "$c" >/dev/null; then PYTHON_BIN="$c"; break; fi
 done
+[ -z "$PYTHON_BIN" ] && PYTHON_BIN="python3"
+printf '%b' "${GREEN}[OK]${NC}  $PYTHON_BIN · Node $(node --version)\n"
 
-if [ -z "$PYTHON_BIN" ]; then
-  echo -e "${RED}[ERR]${NC} Python 3.10-3.12 não encontrado."
-  echo -e "       Instale com: ${YELLOW}brew install python@3.12${NC}"
-  echo -e "       Python 3.14 (atual) é incompatível com pydantic-core."
-  exit 1
-fi
-
-echo -e "${GREEN}[OK]${NC}  Usando $PYTHON_BIN ($($PYTHON_BIN --version))"
-
+# ── venv + pip ───────────────────────────────────────────────
+printf '\n%b' "${BLUE}[2/4]${NC} Preparando ambiente Python...\n"
+VENV_DIR="$SCRIPT_DIR/.venv"
 if [ ! -d "$VENV_DIR" ]; then
   "$PYTHON_BIN" -m venv "$VENV_DIR"
-  echo -e "${GREEN}[OK]${NC}  Virtualenv criado em .venv"
-else
-  echo -e "${GREEN}[OK]${NC}  Virtualenv já existe"
+  printf '%b' "${GREEN}[OK]${NC}  venv criado em .venv\n"
 fi
-
+# shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
+pip install -q --upgrade pip
 pip install -q -r "$SCRIPT_DIR/backend/requirements.txt"
-echo -e "${GREEN}[OK]${NC}  Dependências Python instaladas"
+printf '%b' "${GREEN}[OK]${NC}  dependências Python OK\n"
 
-# ─── Instala dependências Node ─────────────────────────────────
-echo -e "\n${BLUE}[3/4]${NC} Instalando dependências do dashboard..."
+# ── npm ──────────────────────────────────────────────────────
+printf '\n%b' "${BLUE}[3/4]${NC} Preparando dashboard...\n"
 cd "$SCRIPT_DIR/dashboard"
-if [ ! -d "node_modules" ]; then
+if [ ! -d node_modules ]; then
   npm install --silent
-  echo -e "${GREEN}[OK]${NC}  Dependências Node instaladas"
-else
-  echo -e "${GREEN}[OK]${NC}  node_modules já existe"
 fi
+printf '%b' "${GREEN}[OK]${NC}  node_modules OK\n"
 
-# ─── Mata processos anteriores ────────────────────────────────
-kill $(lsof -t -i:8000) 2>/dev/null || true
-kill $(lsof -t -i:3000) 2>/dev/null || true
-sleep 1
+# ── Mata processos anteriores ────────────────────────────────
+for p in "$BACKEND_PORT" "$DASHBOARD_PORT"; do
+  pids="$(lsof -t -i:"$p" 2>/dev/null || true)"
+  [ -n "$pids" ] && kill $pids 2>/dev/null || true
+done
+sleep 0.5
 
-# ─── Inicia Backend FastAPI ───────────────────────────────────
-echo -e "\n${BLUE}[4/4]${NC} Iniciando serviços...\n"
+# ── Backend ──────────────────────────────────────────────────
+printf '\n%b' "${BLUE}[4/4]${NC} Iniciando serviços...\n\n"
 cd "$SCRIPT_DIR/backend"
-echo -e "${GREEN}▶${NC} Backend FastAPI (porta 8000)..."
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload > /tmp/motor_backend.log 2>&1 &
+printf '%b' "${GREEN}▶${NC} Backend FastAPI :$BACKEND_PORT\n"
+uvicorn main:app --host 0.0.0.0 --port "$BACKEND_PORT" --reload > /tmp/motor_backend.log 2>&1 &
 BACKEND_PID=$!
 sleep 3
-
-if ! curl -sf http://localhost:8000/api/health > /dev/null; then
-  echo -e "${RED}[ERR]${NC} Backend não subiu. Log:"
+if ! curl -sf "http://localhost:$BACKEND_PORT/api/health" >/dev/null; then
+  printf '%b' "${RED}[ERR]${NC} backend não subiu — log:\n"
   tail -20 /tmp/motor_backend.log
   exit 1
 fi
-echo -e "${GREEN}[OK]${NC}  Backend rodando (PID $BACKEND_PID)"
+printf '%b' "${GREEN}[OK]${NC}  backend pronto (PID $BACKEND_PID)\n"
 
-# ─── Inicia Simulador ─────────────────────────────────────────
+# ── Simulador ────────────────────────────────────────────────
 SIM_PID=""
 if [ "$REAL_ESP32" = false ]; then
   cd "$SCRIPT_DIR/simulator"
   if [ "$CYCLE" = true ]; then
-    echo -e "${GREEN}▶${NC} Simulador (ciclo automático de perfis)..."
-    python3 simulate_sensors.py --cycle > /tmp/motor_simulator.log 2>&1 &
+    printf '%b' "${GREEN}▶${NC} Simulador (ciclo automático)\n"
+    "$VENV_DIR/bin/python" simulate_sensors.py --cycle > /tmp/motor_simulator.log 2>&1 &
   else
-    echo -e "${GREEN}▶${NC} Simulador (perfil: $PROFILE)..."
-    python3 simulate_sensors.py --profile "$PROFILE" > /tmp/motor_simulator.log 2>&1 &
+    printf '%b' "${GREEN}▶${NC} Simulador (perfil: $PROFILE)\n"
+    "$VENV_DIR/bin/python" simulate_sensors.py --profile "$PROFILE" > /tmp/motor_simulator.log 2>&1 &
   fi
   SIM_PID=$!
-  echo -e "${GREEN}[OK]${NC}  Simulador rodando (PID $SIM_PID)"
 else
-  echo -e "${YELLOW}[INFO]${NC} Modo ESP32 real — aguardando dados da placa..."
+  printf '%b' "${YELLOW}[INFO]${NC} Modo ESP32 real — aguardando dados da placa\n"
 fi
 
-# ─── Inicia Dashboard Next.js ─────────────────────────────────
+# ── Dashboard ────────────────────────────────────────────────
 cd "$SCRIPT_DIR/dashboard"
-echo -e "${GREEN}▶${NC} Dashboard Next.js (porta 3000)..."
-npm run dev > /tmp/motor_dashboard.log 2>&1 &
+printf '%b' "${GREEN}▶${NC} Dashboard Next.js :$DASHBOARD_PORT\n"
+PORT="$DASHBOARD_PORT" NEXT_PUBLIC_API_URL="http://localhost:$BACKEND_PORT" \
+  npm run dev > /tmp/motor_dashboard.log 2>&1 &
 DASH_PID=$!
 sleep 5
-echo -e "${GREEN}[OK]${NC}  Dashboard rodando (PID $DASH_PID)"
+printf '%b' "${GREEN}[OK]${NC}  dashboard pronto (PID $DASH_PID)\n"
 
-echo ""
-echo -e "${CYAN}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${CYAN}║  Sistema iniciado com sucesso!               ║${NC}"
-echo -e "${CYAN}╠══════════════════════════════════════════════╣${NC}"
-echo -e "${CYAN}║  Dashboard:  ${GREEN}http://localhost:3000${CYAN}          ║${NC}"
-echo -e "${CYAN}║  API (docs): ${GREEN}http://localhost:8000/docs${CYAN}     ║${NC}"
+printf '\n%b' "${CYAN}╔══════════════════════════════════════════════════╗${NC}\n"
+printf '%b'   "${CYAN}║  Sistema iniciado com sucesso                    ║${NC}\n"
+printf '%b'   "${CYAN}╠══════════════════════════════════════════════════╣${NC}\n"
+printf "${CYAN}║  Dashboard : ${GREEN}http://localhost:%-5s${CYAN}              ║${NC}\n" "$DASHBOARD_PORT"
+printf "${CYAN}║  API docs  : ${GREEN}http://localhost:%-5s/docs${CYAN}         ║${NC}\n" "$BACKEND_PORT"
+printf "${CYAN}║  Login     : ${YELLOW}%s / %s${CYAN}                      ║${NC}\n" "$AUTH_USER" "$AUTH_PASS"
 if [ "$REAL_ESP32" = false ]; then
-echo -e "${CYAN}║  Modo:       ${YELLOW}Simulador ($PROFILE)${CYAN}           ║${NC}"
+  printf "${CYAN}║  Modo      : ${YELLOW}Simulador (%s)${CYAN}                    ║${NC}\n" "$PROFILE"
 else
-echo -e "${CYAN}║  Modo:       ${GREEN}ESP32 Real${CYAN}                     ║${NC}"
+  printf '%b'   "${CYAN}║  Modo      : ${GREEN}ESP32 Real${CYAN}                          ║${NC}\n"
 fi
-echo -e "${CYAN}╠══════════════════════════════════════════════╣${NC}"
-echo -e "${CYAN}║  Logs: tail -f /tmp/motor_backend.log        ║${NC}"
-echo -e "${CYAN}║  Pressione Ctrl+C para encerrar tudo.        ║${NC}"
-echo -e "${CYAN}╚══════════════════════════════════════════════╝${NC}"
-echo ""
+printf '%b' "${CYAN}╠══════════════════════════════════════════════════╣${NC}\n"
+printf '%b' "${CYAN}║  Logs : tail -f /tmp/motor_backend.log           ║${NC}\n"
+printf '%b' "${CYAN}║  Ctrl+C para encerrar tudo                       ║${NC}\n"
+printf '%b' "${CYAN}╚══════════════════════════════════════════════════╝${NC}\n\n"
 
 cleanup() {
-  echo -e "\n${YELLOW}[STOP]${NC} Encerrando serviços..."
-  kill $BACKEND_PID 2>/dev/null || true
-  [ -n "$SIM_PID" ] && kill $SIM_PID 2>/dev/null || true
-  kill $DASH_PID   2>/dev/null || true
-  echo -e "${GREEN}[OK]${NC}  Encerrado."
+  printf '\n%b' "${YELLOW}[STOP]${NC} Encerrando...\n"
+  kill "$BACKEND_PID" 2>/dev/null || true
+  [ -n "$SIM_PID" ] && kill "$SIM_PID" 2>/dev/null || true
+  kill "$DASH_PID"   2>/dev/null || true
+  printf '%b' "${GREEN}[OK]${NC} Encerrado.\n"
   exit 0
 }
-
 trap cleanup INT TERM
 wait

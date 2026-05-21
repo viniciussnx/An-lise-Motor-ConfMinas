@@ -1,7 +1,7 @@
 """
 Fonte de dados: placa ESP32 vs simulador (exclusão mútua).
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session
 from database import SensorReading
 
 DATA_LIVE_SECONDS = 12
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def normalize_source(raw: Optional[str]) -> str:
@@ -25,7 +29,7 @@ def normalize_source(raw: Optional[str]) -> str:
 def reading_is_live(last: Optional[SensorReading]) -> bool:
     if not last or not last.timestamp:
         return False
-    age = datetime.utcnow() - last.timestamp
+    age = _utcnow() - last.timestamp
     return age <= timedelta(seconds=DATA_LIVE_SECONDS)
 
 

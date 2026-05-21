@@ -8,68 +8,85 @@
 | Temperatura (alt.) | LM35 | GPIO 34 (ADC) | `USE_DHT22 false` |
 | Vibração | SW-420 | GPIO 35 | `USE_ADXL345 false` |
 | Vibração (alt.) | ADXL345 | I2C SDA=21, SCL=22 | `USE_ADXL345 true` |
-| Corrente | SCT-013-030 | GPIO 32 (ADC) | — |
-| Tensão | Divisor R | GPIO 33 (ADC) | `VOLTAGE_RATIO` |
-| Motor | Relé/MOSFET | GPIO 26 | — |
+| Corrente | ACS712-5A | GPIO 32 (ADC) | — |
+| Tensão | Divisor R (R1=R2=10kΩ) | GPIO 33 (ADC) | `VOLTAGE_RATIO` |
+| Motor | Transistor BC547 | GPIO 26 | — |
+| LED status | LED interno | GPIO 2 (LED_BUILTIN) | piscando = sem WiFi · aceso = enviando OK |
 
-## Circuito SCT-013 (Corrente)
+## Auto-Discovery (mDNS)
+
+Com `USE_MDNS true` em `config.h`, o firmware tenta resolver `confiminas.local`
+antes de cair para `API_HOST`. Após 5 falhas HTTP seguidas a placa também
+retenta o descobrimento. Isso evita reflashar quando o IP do servidor muda.
+
+## Configuração rápida
+
+1. **Painel web → Hardware → "Configurar Placa ESP32"** já mostra o IP correto
+   do servidor e oferece **Baixar config.h** com o `API_HOST` pré-preenchido.
+2. Edite somente `WIFI_SSID` / `WIFI_PASSWORD`.
+3. Grave o firmware (Arduino IDE ou PlatformIO).
+
+## Circuito ACS712-5A (Corrente DC)
 
 ```
-SCT-013 saída (pin 1) ──┬── Resistor burden (33Ω) ── GND
-                         └── GPIO 32 do ESP32
+ESP32 VIN (5V) ──→ ACS712 VCC
+ESP32 GND      ──→ ACS712 GND
+Fio do motor   ──→ ACS712 IP+ / IP-  (corrente passa pelos pinos)
+ACS712 OUT     ──→ GPIO 32
 ```
-- Use um capacitor de 10µF entre GPIO32 e GND para estabilizar a leitura.
-- O burden de 33Ω dá fundo de escala ≈ 30A (padrão SCT-013-030).
+- Capacitor 100nF entre OUT e GND reduz ruído ADC.
+- Corrente máxima segura: 5A. Motor DC hobby tipicamente < 1A.
 
-## Divisor de Tensão (Tensão da rede)
+## Tensão DC (divisor resistivo)
 
-> ⚠️ **ATENÇÃO**: Nunca conecte a rede elétrica diretamente ao ESP32.
-> Use um transformador de potencial (TP) ou módulo ZMPT101B.
-
-**Com ZMPT101B (recomendado):**
 ```
-Rede → ZMPT101B → Saída analógica → GPIO 33 + capacitor 100nF → GND
+Motor VCC (5V) ──→ R1 (10kΩ) ──→ GPIO 33
+                                └── R2 (10kΩ) ──→ GND
 ```
-Ajuste `VOLTAGE_RATIO` conforme calibração do módulo.
+- `VOLTAGE_RATIO = 2.0` → lê tensões DC até 6.6V.
+- Capacitor 100nF entre GPIO33 e GND estabiliza a leitura.
+
+## Controle do Motor (transistor BC547)
+
+```
+GPIO 26 ──→ R1 (1kΩ) ──→ BC547 Base
+                          BC547 Coletor ──→ Motor DC (-)
+Motor DC (+) ──→ VIN (5V)
+BC547 Emissor ──→ GND
+Diodo 1N4007 em paralelo com motor (catodo no +)
+```
 
 ## Gravação do Firmware
 
 ### Arduino IDE
-1. Instale o suporte ESP32: Arquivo → Preferências → URLs adicionais:
+1. Arquivo → Preferências → URLs adicionais:
    `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
 2. Ferramentas → Placa → ESP32 → **ESP32 Dev Module**
-3. Instale as bibliotecas: DHT sensor library, ArduinoJson, Adafruit ADXL345
-4. Edite `config.h` com seus dados de WiFi e IP do servidor
+3. Bibliotecas: `DHT sensor library`, `ArduinoJson`, `Adafruit ADXL345` (se usar I2C)
+4. Edite `config.h` (apenas WiFi)
 5. Compile e grave (Upload)
 
-### PlatformIO (VSCode)
+### PlatformIO
 ```ini
 [env:esp32dev]
 platform = espressif32
 board = esp32dev
 framework = arduino
+monitor_speed = 115200
 lib_deps =
     adafruit/DHT sensor library
     bblanchon/ArduinoJson
     adafruit/Adafruit ADXL345
 ```
 
-## Configuração mínima no config.h
+## Verificação pelo Serial Monitor (115200)
 
-```cpp
-#define WIFI_SSID     "NOME_DA_SUA_REDE"
-#define WIFI_PASSWORD "SENHA_DA_REDE"
-#define API_HOST      "192.168.x.x"   // IP do PC com o backend
 ```
+[WiFi] OK · IP: 192.168.1.105 · RSSI: -54 dBm
+[mDNS] confiminas.local → 192.168.1.20
+[NET]  Servidor OK em 192.168.1.20:8000
+[READY] Envio a cada 2000 ms
 
-## Verificação
-
-Abra o Monitor Serial (115200 baud) após gravar. Você verá:
-```
-[WiFi] Conectado! IP: 192.168.1.105
-[INIT] DHT22 inicializado
-[READY] Enviando leituras a cada 2000ms
-
-[OK] T=58.3°C Vib=9.45mm/s I=7.89A U=381.2V → normal
-[OK] T=58.7°C Vib=9.62mm/s I=7.95A U=380.8V → normal
+[OK]  T=58.3C V=9.45mm/s I=7.89A U=381.2V  status=normal
+[OK]  T=58.7C V=9.62mm/s I=7.95A U=380.8V  status=normal
 ```

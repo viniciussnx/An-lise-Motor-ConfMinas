@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="620" height="420" viewBox="0 0 620 420" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:15px;font-weight:bold;fill:#1a3a6b;}
+  .d{font-size:10px;fill:#cc2200;}
+  .n{font-size:9px;fill:#777777;}
+</style>
+<rect width="620" height="420" fill="white" stroke="#bbbbbb"/>
+<rect x="4" y="4" width="612" height="412" fill="none" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="4" y="378" width="612" height="38" fill="#cce0ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="310" y="396" text-anchor="middle" class="t">Peça 2: CARCAÇA MOTOR (DECORATIVA)</text>
+<text x="310" y="410" text-anchor="middle" class="n">ConfiMinas Engenharia | PLA 0.2mm 20% infill | medidas em mm</text>
+<text x="113.8" y="63" text-anchor="middle" class="t" fill="#000000">VISTA FRONTAL</text>
+<rect x="55" y="75" width="117.6" height="106.39999999999999" fill="#4477cc" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="69.0" y="75" width="11.2" height="14.0" fill="#335588" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="88.6" y="75" width="11.2" height="14.0" fill="#335588" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="108.19999999999999" y="75" width="11.2" height="14.0" fill="#335588" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="127.8" y="75" width="11.2" height="14.0" fill="#335588" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="147.39999999999998" y="75" width="11.2" height="14.0" fill="#335588" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="79.78" y="164.32" width="68.03999999999999" height="10.08" fill="#ffe0b0" stroke="#cc6600" stroke-width="2"/>
+<text x="113.8" y="158.32" text-anchor="middle" class="n" fill="#000000">cavidade motor DC</text>
+<circle cx="182.4" cy="128.2" r="2.86" fill="white" stroke="#000000" stroke-width="1.5"/>
+<text x="200.2" y="132.2" text-anchor="start" class="n" fill="#000000">eixo ø2.3mm</text>
+<circle cx="69.0" cy="89.0" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="69.0" cy="161.8" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="158.6" cy="89.0" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="158.6" cy="161.8" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<line x1="55" y1="211.39999999999998" x2="172.6" y2="211.39999999999998" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="55" y1="181.39999999999998" x2="55" y2="217.39999999999998" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="172.6" y1="181.39999999999998" x2="172.6" y2="217.39999999999998" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="55,211.39999999999998 61,208.39999999999998 61,214.39999999999998" fill="#cc2200"/>
+<polygon points="172.6,211.39999999999998 166.6,208.39999999999998 166.6,214.39999999999998" fill="#cc2200"/>
+<text x="113.8" y="206.39999999999998" text-anchor="middle" class="d" fill="#000000">42 mm</text>
+<line x1="200.6" y1="75" x2="200.6" y2="181.39999999999998" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="172.6" y1="75" x2="206.6" y2="75" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="172.6" y1="181.39999999999998" x2="206.6" y2="181.39999999999998" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="200.6,75 197.6,81 203.6,81" fill="#cc2200"/>
+<polygon points="200.6,181.39999999999998 197.6,175.39999999999998 203.6,175.39999999999998" fill="#cc2200"/>
+<text x="214.6" y="132.2" text-anchor="middle" class="d" transform="rotate(-90 214.6 132.2)">38 mm</text>
+<line x1="79.78" y1="142.32" x2="147.82" y2="142.32" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="79.78" y1="164.32" x2="79.78" y2="148.32" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="147.82" y1="164.32" x2="147.82" y2="148.32" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="79.78,142.32 85.78,139.32 85.78,145.32" fill="#cc2200"/>
+<polygon points="147.82,142.32 141.82,139.32 141.82,145.32" fill="#cc2200"/>
+<text x="113.8" y="137.32" text-anchor="middle" class="d" fill="#000000">24.3 mm</text>
+<line x1="227.6" y1="164.32" x2="227.6" y2="174.4" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="215.6" y1="164.32" x2="233.6" y2="164.32" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="215.6" y1="174.4" x2="233.6" y2="174.4" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="227.6,164.32 224.6,170.32 230.6,170.32" fill="#cc2200"/>
+<polygon points="227.6,174.4 224.6,168.4 230.6,168.4" fill="#cc2200"/>
+<text x="241.6" y="173.36" text-anchor="middle" class="d" transform="rotate(-90 241.6 173.36)">3.6 mm</text>
+<text x="313.0" y="63" text-anchor="middle" class="t" fill="#000000">VISTA LATERAL</text>
+<rect x="262.6" y="75" width="100.8" height="106.39999999999999" fill="#4477cc" stroke="#1a3a6b" stroke-width="2"/>
+<circle cx="313.0" cy="128.2" r="2.86" fill="white" stroke="#000000" stroke-width="1.5"/>
+<line x1="262.6" y1="206.39999999999998" x2="363.40000000000003" y2="206.39999999999998" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="262.6" y1="181.39999999999998" x2="262.6" y2="212.39999999999998" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="363.40000000000003" y1="181.39999999999998" x2="363.40000000000003" y2="212.39999999999998" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="262.6,206.39999999999998 268.6,203.39999999999998 268.6,209.39999999999998" fill="#cc2200"/>
+<polygon points="363.40000000000003,206.39999999999998 357.40000000000003,203.39999999999998 357.40000000000003,209.39999999999998" fill="#cc2200"/>
+<text x="313.0" y="201.39999999999998" text-anchor="middle" class="d" fill="#000000">36 mm</text>
+<rect x="55" y="236.39999999999998" width="220" height="52" fill="#f0f6ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="63" y="254.39999999999998" text-anchor="start" class="n" fill="#000000">Cavidade laranja: motor DC flat encaixa por pressão (fica no bolso da base abaixo)</text>
+<text x="63" y="268.4" text-anchor="start" class="n" fill="#000000">Furo lateral ø2.3mm: eixo do motor passa para o redutor</text>
+<text x="63" y="282.4" text-anchor="start" class="n" fill="#000000">Carcaça parafusa na base com M3 sobre o motor (tampa decorativa visual WEG)</text>
+
+</svg>

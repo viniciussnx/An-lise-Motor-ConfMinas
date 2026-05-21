@@ -2,11 +2,12 @@ import { memo, useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import {
   Wifi, WifiOff, Thermometer, Activity, Zap, Cpu, ChevronLeft, Clock,
-  RefreshCw, Power, Play, Square, Radio,
+  RefreshCw, Power, Play, Square, Radio, Copy, Download, LogOut, User,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import useMotorData, { API } from '../hooks/useMotorData';
+import useMotorData from '../hooks/useMotorData';
+import { API, apiFetch, getUser, logout } from '../lib/api';
 import ConfiMinasLogo from '../components/ConfiMinasLogo';
 
 const OFF_STYLE = { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0' };
@@ -70,7 +71,7 @@ function SimulatorPanel({ onChanged }) {
 
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/api/simulator/status`);
+      const res = await apiFetch(`/api/simulator/status`);
       if (res.ok) {
         const data = await res.json();
         setSim(data);
@@ -97,7 +98,7 @@ function SimulatorPanel({ onChanged }) {
     setLoading(true);
     setMsg('');
     try {
-      const res = await fetch(`${API}/api/simulator/prepare-esp32`, { method: 'POST' });
+      const res = await apiFetch(`/api/simulator/prepare-esp32`, { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(parseApiError(data));
       setMsg(data.message || 'Modo placa ESP32 — simulador parado');
@@ -120,11 +121,10 @@ function SimulatorPanel({ onChanged }) {
         );
       }
       const url = sim.running
-        ? `${API}/api/simulator/stop`
-        : `${API}/api/simulator/start`;
-      const res = await fetch(url, {
+        ? `/api/simulator/stop`
+        : `/api/simulator/start`;
+      const res = await apiFetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: sim.running ? undefined : JSON.stringify({ profile, cycle }),
       });
       const data = await res.json().catch(() => ({}));
@@ -308,9 +308,132 @@ const ESP32Card = memo(function ESP32Card({ espLinked, hasData, lastSeen, readin
   );
 });
 
+function ESP32SetupCard() {
+  const [user, setUser] = useState(null);
+  const [host, setHost] = useState('');
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setUser(getUser());
+    if (typeof window !== 'undefined') {
+      try {
+        const u = new URL(API);
+        setHost(u.hostname);
+      } catch { setHost('localhost'); }
+    }
+  }, []);
+
+  const copyHost = async () => {
+    try {
+      await navigator.clipboard.writeText(host);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+
+  const downloadConfig = async () => {
+    try {
+      const res = await fetch(`${API}/api/esp32/config`);
+      const text = await res.text();
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'config.h';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      alert('Falha ao baixar config.h: ' + e.message);
+    }
+  };
+
+  return (
+    <section className="card p-6" style={{ borderTop: '3px solid #059669' }}>
+      <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center"
+               style={{ background: '#ecfdf5', border: '1px solid #a7f3d0' }}>
+            <Cpu size={20} style={{ color: '#059669' }} />
+          </div>
+          <div>
+            <h2 className="text-base font-bold" style={{ color: '#0f172a' }}>Configurar Placa ESP32</h2>
+            <p className="text-sm mt-0.5" style={{ color: '#64748b' }}>
+              Use os passos abaixo para apontar sua placa real para este servidor.
+            </p>
+          </div>
+        </div>
+        <button onClick={downloadConfig} className="btn-primary">
+          <Download size={12} /> Baixar config.h
+        </button>
+      </div>
+
+      <ol className="space-y-3 text-sm" style={{ color: '#334155' }}>
+        <li className="flex gap-3">
+          <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0"
+                style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0' }}>1</span>
+          <div>
+            <div className="font-semibold" style={{ color: '#0f172a' }}>Aponte para este servidor</div>
+            <div className="mt-1 flex items-center gap-2 flex-wrap">
+              <code className="mono text-xs px-2.5 py-1.5 rounded-md"
+                    style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#0f172a' }}>
+                #define API_HOST "{host || 'localhost'}"
+              </code>
+              <button onClick={copyHost} className="btn-ghost text-xs">
+                <Copy size={11} /> {copied ? 'Copiado' : 'Copiar IP'}
+              </button>
+            </div>
+          </div>
+        </li>
+        <li className="flex gap-3">
+          <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0"
+                style={{ background: '#eff4ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>2</span>
+          <div>
+            <div className="font-semibold" style={{ color: '#0f172a' }}>Edite WiFi em <code className="mono">config.h</code></div>
+            <div className="text-xs mt-1" style={{ color: '#64748b' }}>
+              Defina <code className="mono">WIFI_SSID</code> e <code className="mono">WIFI_PASSWORD</code> com sua rede.
+            </div>
+          </div>
+        </li>
+        <li className="flex gap-3">
+          <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0"
+                style={{ background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a' }}>3</span>
+          <div>
+            <div className="font-semibold" style={{ color: '#0f172a' }}>Grave o firmware</div>
+            <div className="text-xs mt-1" style={{ color: '#64748b' }}>
+              Arduino IDE ou PlatformIO. Endpoint usado: <code className="mono">POST /api/readings</code> (sem token).
+            </div>
+          </div>
+        </li>
+        <li className="flex gap-3">
+          <span className="w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shrink-0"
+                style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }}>4</span>
+          <div>
+            <div className="font-semibold" style={{ color: '#0f172a' }}>Pare o simulador</div>
+            <div className="text-xs mt-1" style={{ color: '#64748b' }}>
+              Painel logo abaixo · botão "Usar placa ESP32". Assim que a placa enviar dados, o cabeçalho mostra "Conectada".
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      {user && (
+        <p className="mt-4 text-xs px-3 py-2 rounded-lg"
+           style={{ background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0' }}>
+          Logado como <strong>{user.username}</strong>. O endpoint da placa é público (não precisa de token).
+        </p>
+      )}
+    </section>
+  );
+}
+
+
 export default function HardwarePage() {
   const { status, readings, online, lastAt, refresh, hasLiveData } = useMotorData();
   const [, setSimTick] = useState(0);
+  const [user, setUser] = useState(null);
+  useEffect(() => setUser(getUser()), []);
 
   const hasData = hasLiveData;
   const last = status?.last_reading;
@@ -359,10 +482,21 @@ export default function HardwarePage() {
                 {online ? `API Online · ${lastAt?.toLocaleTimeString('pt-BR')}` : 'API Offline'}
               </span>
             </div>
+            {user && (
+              <div className="flex items-center gap-2 pl-3" style={{ borderLeft: '1px solid var(--border)' }}>
+                <span className="text-xs font-semibold flex items-center gap-1.5" style={{ color: '#475569' }}>
+                  <User size={12} /> {user.username}
+                </span>
+                <button type="button" onClick={logout} className="btn-ghost flex items-center gap-1" title="Sair">
+                  <LogOut size={12} /> Sair
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
         <main className="px-6 py-6 max-w-screen-xl mx-auto space-y-5">
+          <ESP32SetupCard />
           <ESP32Card
             hasData={hasData}
             espLinked={espLinked}

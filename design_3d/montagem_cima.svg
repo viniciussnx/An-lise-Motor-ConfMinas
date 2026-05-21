@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="900" height="520" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+    <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#00000044"/>
+  </filter>
+</defs>
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:16px;font-weight:bold;fill:#2244aa;}
+  .d{font-size:10px;fill:#cc2200;}
+  .lbl{font-size:9px;fill:#444;}
+  .big{font-size:13px;font-weight:bold;}
+</style>
+<rect width="900" height="520" fill="#f5f7fa"/>
+<rect x="3" y="3" width="894" height="514" fill="none" stroke="#1a3a8f" stroke-width="2"/>
+<!-- Vista de Cima -->
+<rect x="60.0" y="120.0" width="528.0" height="216.0" fill="#2255cc" stroke="#1a3a8f" stroke-width="2"/>
+<rect x="60.0" y="139.2" width="528.0" height="6.0" fill="#335599" stroke="#1a3a8f" stroke-width="0.4"/>
+<rect x="60.0" y="310.8" width="528.0" height="6.0" fill="#335599" stroke="#1a3a8f" stroke-width="0.4"/>
+<rect x="84.0" y="120.0" width="6.0" height="216.0" fill="#335599" stroke="#1a3a8f" stroke-width="0.4"/>
+<rect x="252.0" y="120.0" width="6.0" height="216.0" fill="#335599" stroke="#1a3a8f" stroke-width="0.4"/>
+<rect x="420.0" y="120.0" width="6.0" height="216.0" fill="#335599" stroke="#1a3a8f" stroke-width="0.4"/>
+<rect x="559.2" y="120.0" width="6.0" height="216.0" fill="#335599" stroke="#1a3a8f" stroke-width="0.4"/>
+<rect x="112.8" y="156.0" width="96.0" height="144.0" fill="#1a3a8f" stroke="#1a3a8f" stroke-width="0.3" rx="2" opacity="0.4"/>
+<rect x="256.8" y="156.0" width="96.0" height="144.0" fill="#1a3a8f" stroke="#1a3a8f" stroke-width="0.3" rx="2" opacity="0.4"/>
+<rect x="400.8" y="156.0" width="96.0" height="144.0" fill="#1a3a8f" stroke="#1a3a8f" stroke-width="0.3" rx="2" opacity="0.4"/>
+<rect x="88.8" y="184.8" width="100.8" height="86.4" fill="#2244aa" stroke="#2244aa" stroke-width="1.5" rx="3"/>
+<line x1="100.8" y1="189.6" x2="100.8" y2="266.4" stroke="#3366dd" stroke-width="0.8"/>
+<line x1="117.6" y1="189.6" x2="117.6" y2="266.4" stroke="#3366dd" stroke-width="0.8"/>
+<line x1="134.4" y1="189.6" x2="134.4" y2="266.4" stroke="#3366dd" stroke-width="0.8"/>
+<line x1="151.2" y1="189.6" x2="151.2" y2="266.4" stroke="#3366dd" stroke-width="0.8"/>
+<line x1="168.0" y1="189.6" x2="168.0" y2="266.4" stroke="#3366dd" stroke-width="0.8"/>
+<rect x="104.2" y="217.0" width="70.0" height="16.0" fill="#2244aa" stroke="#2244aa" stroke-width="0" rx="4"/>
+<text x="139.2" y="228.0" text-anchor="middle" class="lbl" fill="#ffffff">MOTOR DC</text>
+<rect x="199.2" y="194.4" width="67.2" height="67.2" fill="#555555" stroke="#555555" stroke-width="1.5" rx="2"/>
+<rect x="201.3" y="217.0" width="63.0" height="16.0" fill="#555555" stroke="#555555" stroke-width="0" rx="4"/>
+<text x="232.8" y="228.0" text-anchor="middle" class="lbl" fill="#ffffff">REDUTOR</text>
+<rect x="240.0" y="160.8" width="31.2" height="134.4" fill="#ddaa00" stroke="#ddaa00" stroke-width="1.5" rx="1"/>
+<rect x="499.2" y="160.8" width="12.0" height="134.4" fill="#ddaa00" stroke="#ddaa00" stroke-width="1.5" rx="1"/>
+<rect x="271.2" y="175.2" width="240.0" height="105.6" fill="#dd6600" stroke="#dd6600" stroke-width="2"/>
+<line x1="199.2" y1="228.0" x2="559.2" y2="228.0" stroke="#aaaaaa" stroke-width="0.7" stroke-dasharray="5,3"/>
+<rect x="328.2" y="217.0" width="126.0" height="16.0" fill="#dd6600" stroke="#dd6600" stroke-width="0" rx="4"/>
+<text x="391.2" y="228.0" text-anchor="middle" class="lbl" fill="#ffffff">TAMBOR ø44×100mm</text>
+<rect x="523.2" y="180.0" width="96.0" height="72.0" fill="#888888" stroke="#888888" stroke-width="1.5" rx="2"/>
+<rect x="543.2" y="205.0" width="56.0" height="16.0" fill="#888888" stroke="#888888" stroke-width="0" rx="4"/>
+<text x="571.2" y="216.0" text-anchor="middle" class="lbl" fill="#ffffff">MANCAL</text>
+<rect x="621.6" y="180.0" width="105.6" height="48.0" fill="#aabbdd" stroke="#2244aa" stroke-width="1.5" rx="2"/>
+<rect x="632.4" y="193.0" width="84.0" height="16.0" fill="#2244aa" stroke="#2244aa" stroke-width="0" rx="4"/>
+<text x="674.4" y="204.0" text-anchor="middle" class="lbl" fill="#ffffff">PAINEL CLP</text>
+<line x1="60.0" y1="364.0" x2="588.0" y2="364.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="60.0" y1="336.0" x2="60.0" y2="370.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="588.0" y1="336.0" x2="588.0" y2="370.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="60.0,364.0 66.0,361.0 66.0,367.0" fill="#cc2200"/>
+<polygon points="588.0,364.0 582.0,361.0 582.0,367.0" fill="#cc2200"/>
+<text x="324.0" y="360.0" text-anchor="middle" class="d" fill="#000000">220 mm</text>
+<line x1="621.0" y1="120.0" x2="621.0" y2="336.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="596.0" y1="120.0" x2="627.0" y2="120.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="596.0" y1="336.0" x2="627.0" y2="336.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="621.0,120.0 618.0,126.0 624.0,126.0" fill="#cc2200"/>
+<polygon points="621.0,336.0 618.0,330.0 624.0,330.0" fill="#cc2200"/>
+<text x="635.0" y="232.0" text-anchor="middle" class="d" transform="rotate(-90 635.0 228.0)">90 mm</text>
+<line x1="271.2" y1="132.8" x2="511.2" y2="132.8" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="271.2" y1="160.8" x2="271.2" y2="126.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="511.2" y1="160.8" x2="511.2" y2="126.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="271.2,132.8 277.2,129.8 277.2,135.8" fill="#cc2200"/>
+<polygon points="511.2,132.8 505.2,129.8 505.2,135.8" fill="#cc2200"/>
+<text x="391.2" y="144.8" text-anchor="middle" class="d" fill="#000000">100 mm</text>
+<line x1="537.2" y1="175.2" x2="537.2" y2="280.8" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="519.2" y1="175.2" x2="543.2" y2="175.2" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="519.2" y1="280.8" x2="543.2" y2="280.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="537.2,175.2 534.2,181.2 540.2,181.2" fill="#cc2200"/>
+<polygon points="537.2,280.8 534.2,274.8 540.2,274.8" fill="#cc2200"/>
+<text x="551.2" y="232.0" text-anchor="middle" class="d" transform="rotate(-90 551.2 228.0)">ø44mm</text>
+<line x1="88.8" y1="283.6" x2="266.4" y2="283.6" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="88.8" y1="261.6" x2="88.8" y2="289.6" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="266.4" y1="261.6" x2="266.4" y2="289.6" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="88.8,283.6 94.8,280.6 94.8,286.6" fill="#cc2200"/>
+<polygon points="266.4,283.6 260.4,280.6 260.4,286.6" fill="#cc2200"/>
+<text x="177.6" y="279.6" text-anchor="middle" class="d" fill="#000000">74 mm (motor+red.)</text>
+<text x="324.0" y="90.0" text-anchor="middle" class="t" fill="#000000">VISTA DE CIMA</text>
+<rect x="60.0" y="401.0" width="528.0" height="60.0" fill="#f0f4ff" stroke="#1a3a8f" stroke-width="1"/>
+<rect x="70.0" y="406.0" width="14.0" height="14.0" fill="#2255cc" stroke="#2255cc" stroke-width="1" rx="2"/>
+<text x="88.0" y="416.0" text-anchor="start" class="lbl" fill="#000000">Base/Skid (220×90×10mm)</text>
+<rect x="250.0" y="406.0" width="14.0" height="14.0" fill="#2244aa" stroke="#2244aa" stroke-width="1" rx="2"/>
+<text x="268.0" y="416.0" text-anchor="start" class="lbl" fill="#000000">Carcaça Motor DC (42×36×56mm)</text>
+<rect x="430.0" y="406.0" width="14.0" height="14.0" fill="#555555" stroke="#555555" stroke-width="1" rx="2"/>
+<text x="448.0" y="416.0" text-anchor="start" class="lbl" fill="#000000">Redutor decorativo (28×28×56mm)</text>
+<rect x="70.0" y="432.0" width="14.0" height="14.0" fill="#dd6600" stroke="#dd6600" stroke-width="1" rx="2"/>
+<text x="88.0" y="442.0" text-anchor="start" class="lbl" fill="#000000">Tambor moinho ø44×100mm</text>
+<rect x="250.0" y="432.0" width="14.0" height="14.0" fill="#888888" stroke="#888888" stroke-width="1" rx="2"/>
+<text x="268.0" y="442.0" text-anchor="start" class="lbl" fill="#000000">Mancal traseiro (40×30mm)</text>
+<rect x="430.0" y="432.0" width="14.0" height="14.0" fill="#aabbdd" stroke="#aabbdd" stroke-width="1" rx="2"/>
+<text x="448.0" y="442.0" text-anchor="start" class="lbl" fill="#000000">Painel CLP / ESP32 (44×20×80mm)</text>
+
+<rect x="3" y="480" width="894" height="37" fill="#ccddf0" stroke="#1a3a8f" stroke-width="1"/>
+<text x="450" y="498" text-anchor="middle" class="big" fill="#1a3a8f">ConfiMinas — Protótipo Moinho de Bolas | Vista de Cima</text>
+<text x="450" y="512" text-anchor="middle" class="lbl">Medidas em mm | Escala aproximada | PLA 0.2mm</text>
+</svg>

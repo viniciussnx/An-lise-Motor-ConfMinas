@@ -1,8 +1,12 @@
-import { memo } from 'react';
-import { Bell, RefreshCw, Settings } from 'lucide-react';
+import { memo, useEffect, useState } from 'react';
+import { Bell, RefreshCw, Settings, LogOut, User } from 'lucide-react';
 import ConfiMinasLogo from './ConfiMinasLogo';
+import { getUser, logout } from '../lib/api';
 
 function DashboardHeader({ online, lastAt, openOrders, onRefresh }) {
+  const [user, setUser] = useState(null);
+  useEffect(() => setUser(getUser()), []);
+
   return (
     <header
       className="sticky top-0 z-50 px-6 py-3 flex items-center justify-between"
@@ -45,6 +49,27 @@ function DashboardHeader({ online, lastAt, openOrders, onRefresh }) {
             {online ? `Online · ${lastAt?.toLocaleTimeString('pt-BR')}` : 'Offline'}
           </span>
         </div>
+        {user && (
+          <div
+            className="flex items-center gap-2 pl-3"
+            style={{ borderLeft: '1px solid var(--border)' }}
+          >
+            <div
+              className="flex items-center gap-1.5 text-xs font-semibold"
+              style={{ color: '#475569' }}
+            >
+              <User size={12} /> {user.username}
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="btn-ghost flex items-center gap-1"
+              title="Sair"
+            >
+              <LogOut size={12} /> Sair
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );

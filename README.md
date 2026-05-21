@@ -1,149 +1,131 @@
-# ⚙️ Sistema de Manutenção Preditiva — CONFIMINAS
+# ConfiMinas — Sistema de Manutenção Preditiva
 
-Sistema completo de monitoramento de motor com análise preditiva em tempo real,
-dashboard web e geração automática de Ordens de Serviço em PDF.
+Monitoramento de motor com análise preditiva em tempo real, dashboard web
+autenticado e geração automática de Ordens de Serviço em PDF.
 
-## 🏗 Arquitetura
+## Arquitetura
 
 ```
-[ESP32 + Sensores] ──HTTP POST──► [FastAPI :8000] ──► [SQLite]
+[ESP32 + sensores] ──HTTP POST──► [FastAPI :8000] ──► [SQLite WAL]
 [Simulador Python] ──HTTP POST──►        │
                                           ▼
-                                  [Next.js :3000]
+                          [Next.js :3000 · login + dashboard]
                                           │
                                   [PDF OS Preditiva]
 ```
 
-## 🚀 Início Rápido
+## Início rápido
 
 ```bash
-# 1. Clone e entre na pasta
-cd DEMANDA_CONFIMINAS2
-
-# 2. Inicia tudo (backend + simulador + dashboard)
-./start.sh
-
-# 3. Acesse o dashboard
-# http://localhost:3000
+./start.sh                          # simulador "normal"
+./start.sh --cycle                  # alterna perfis
+./start.sh --profile failure        # falha iminente
+./start.sh --real                   # só backend (aguarda ESP32 real)
 ```
 
-### Modos de execução
+Abrir `http://localhost:3000` → login com **master / master**.
+
+### Credenciais
+
+Padrão: `master / master`. Sobrescreva via variáveis de ambiente:
 
 ```bash
-./start.sh                          # Simulador perfil "normal"
-./start.sh --cycle                  # Simulador alterna perfis (demo completo)
-./start.sh --profile failure        # Simula falha iminente imediatamente
-./start.sh --profile wear           # Simula desgaste progressivo
-./start.sh --real                   # Só backend — aguarda ESP32 real
+AUTH_USER=admin AUTH_PASS='senha-forte' ./start.sh
+AUTH_DISABLED=true ./start.sh        # dev: sem autenticação
 ```
 
-## 📡 ESP32 — Dados Reais
+## ESP32 — Placa real
 
-Para usar com a placa e sensores reais:
+1. Painel web → **Hardware → Configurar Placa ESP32 → Baixar config.h**
+   (já vem com o IP do servidor preenchido).
+2. Em `config.h`, edite apenas `WIFI_SSID` e `WIFI_PASSWORD`.
+3. Grave o firmware (Arduino IDE ou PlatformIO).
+4. Inicie o backend em modo placa: `./start.sh --real`.
+5. Quando a placa enviar dados, o card "ESP32" do painel passa para **Conectada**.
 
-1. Edite `firmware/esp32_motor_monitor/config.h`:
-   ```cpp
-   #define WIFI_SSID     "SUA_REDE"
-   #define WIFI_PASSWORD "SUA_SENHA"
-   #define API_HOST      "192.168.x.x"   // IP do seu PC
-   ```
+Auto-discovery via mDNS (`confiminas.local`) reduz dor de cabeça quando o IP do
+servidor muda — o firmware tenta resolver o hostname antes do fallback do
+`API_HOST` em `config.h`.
 
-2. Grave o firmware via Arduino IDE ou PlatformIO (veja `firmware/README.md`)
-
-3. Inicie o backend sem simulador:
-   ```bash
-   ./start.sh --real
-   ```
-
-4. O dashboard mostrará "📡 ESP32 Real" ao receber os primeiros dados.
-
-## 🔌 Sensores e Pinos
+## Sensores e pinos
 
 | Sensor | Modelo | Pino ESP32 |
 |--------|--------|------------|
 | Temperatura | DHT22 | GPIO 4 |
-| Vibração | SW-420 | GPIO 35 |
+| Vibração | SW-420 / ADXL345 | GPIO 35 (ou I2C) |
 | Corrente | SCT-013-030 | GPIO 32 |
 | Tensão | ZMPT101B / divisor | GPIO 33 |
-| Controle motor | Relé | GPIO 26 |
+| Relé motor | — | GPIO 26 |
 
-> Veja `firmware/esp32_motor_monitor/README.md` para esquema de ligação detalhado.
-
-## ⚠️ Limites de Alarme
+## Limites de alarme (padrão)
 
 | Parâmetro | Alerta | Crítico |
 |-----------|--------|---------|
-| Temperatura | > 75°C | > 85°C |
+| Temperatura | > 75 °C | > 85 °C |
 | Vibração | > 25 mm/s | > 35 mm/s |
-| Corrente | ±20% nominal | ±35% nominal |
+| Corrente | ±20 % nominal | ±35 % nominal |
 
-**Regra de geração de OS:**
-- 1 sensor em estado crítico → OS gerada imediatamente
-- 2+ sensores em alerta → OS gerada (prioridade alta)
+Configuráveis em tempo de execução em **Limites** (frontend) ou via
+`PUT /api/thresholds` (backend).
 
-## 📁 Estrutura de Arquivos
+## Regra de geração de OS
+- 1+ sensor em **crítico** → OS imediata (prioridade *crítica*)
+- 2+ sensores em **alerta** → OS preventiva (prioridade *alta*)
+
+## Estrutura de arquivos
 
 ```
-DEMANDA_CONFIMINAS2/
-├── firmware/
-│   └── esp32_motor_monitor/
-│       ├── esp32_motor_monitor.ino   ← Firmware principal
-│       ├── config.h                  ← ⚠️ Configure WiFi e IP aqui
-│       └── README.md
-├── backend/
-│   ├── main.py                       ← FastAPI endpoints
-│   ├── database.py                   ← Models SQLite
-│   ├── predictive.py                 ← Lógica de análise preditiva
-│   ├── service_order_gen.py          ← Geração de PDF
+DEMANDA_CONFIMINAS/
+├── firmware/esp32_motor_monitor/    ESP32 (.ino + config.h)
+├── backend/                         FastAPI + SQLite + PDF
+│   ├── main.py                      endpoints + lifespan
+│   ├── auth.py                      login HMAC (master/master)
+│   ├── database.py                  modelos + WAL
+│   ├── readings_service.py          ingestão unificada
+│   ├── predictive.py                regras de alarme
+│   ├── service_order_gen.py         PDF (ReportLab)
 │   └── requirements.txt
-├── simulator/
-│   ├── simulate_sensors.py           ← Simulador de sensores
-│   └── motor_profiles.py             ← Perfis de falha
-├── dashboard/
-│   ├── pages/index.js                ← Dashboard principal
-│   └── components/                   ← Gráficos e cards
-├── start.sh                          ← ⭐ Inicia tudo
+├── simulator/                       gerador de leituras
+├── dashboard/                       Next.js 14 + React 18
+│   ├── pages/login.js               tela de acesso
+│   ├── pages/index.js               dashboard principal
+│   ├── pages/hardware.js            painel hardware/ESP32
+│   ├── pages/thresholds.js          ajuste de limites
+│   ├── lib/api.js                   cliente HTTP + sessão
+│   └── components/                  gráficos, cards, OS
+├── start.sh                         inicialização completa
 └── README.md
 ```
 
-## 🛠 Dependências
+## API — principais endpoints
 
-**Backend (Python)**
-```bash
-pip install fastapi uvicorn sqlalchemy weasyprint
-```
+| Método | Endpoint | Autenticação | Descrição |
+|--------|----------|--------------|-----------|
+| POST  | `/api/auth/login` | — | login (`username`,`password`) |
+| GET   | `/api/auth/me`    | Bearer | usuário corrente |
+| POST  | `/api/readings`   | — | recebe dados da placa/simulador |
+| GET   | `/api/readings`   | Bearer | histórico |
+| GET   | `/api/status`     | Bearer | estado atual |
+| GET   | `/api/service-orders` | Bearer | lista de OS |
+| GET   | `/api/service-orders/{id}/pdf` | Bearer | PDF da OS |
+| PUT   | `/api/thresholds` | Bearer | atualiza limites |
+| GET   | `/api/esp32/config` | — | template `config.h` |
+| GET   | `/api/health`     | — | health-check |
 
-**Dashboard (Node.js)**
-```bash
-cd dashboard && npm install
-```
+Documentação interativa: `http://localhost:8000/docs`
 
-**Firmware (Arduino)**
-- DHT sensor library (Adafruit)
-- ArduinoJson
-- Adafruit ADXL345 (se usar ADXL345)
-
-## 📊 API — Principais Endpoints
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/api/readings` | Recebe dados dos sensores |
-| GET | `/api/readings?limit=60` | Histórico de leituras |
-| GET | `/api/status` | Status atual + análise |
-| GET | `/api/service-orders` | Lista de OS geradas |
-| GET | `/api/service-orders/{id}/pdf` | Download do PDF |
-| POST | `/api/motor/start` | Registra motor ligado |
-| POST | `/api/motor/stop` | Registra motor parado |
-
-Documentação interativa: http://localhost:8000/docs
-
-## 🔧 Configuração da Corrente Nominal
-
-A corrente nominal do motor é usada como referência para alarmes de corrente.
-Configure via API ou diretamente no banco:
+## Configuração da corrente nominal
 
 ```bash
 curl -X PUT http://localhost:8000/api/motor/config \
-  -H "Content-Type: application/json" \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
   -d '{"nominal_current": 8.0}'
 ```
+
+## Performance
+
+- SQLite em modo **WAL** + `synchronous=NORMAL` (leituras concorrentes ao gravar).
+- Índice composto `(source, timestamp)` em `sensor_readings`.
+- Dashboard: polling 4 s, React memoization (componentes e `useMemo`).
+- Imagens estáticas servidas com `unoptimized` (zero overhead em dev local).

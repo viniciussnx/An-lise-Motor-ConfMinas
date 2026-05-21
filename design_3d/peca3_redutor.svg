@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="380" viewBox="0 0 500 380" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:15px;font-weight:bold;fill:#1a3a6b;}
+  .d{font-size:10px;fill:#cc2200;}
+  .n{font-size:9px;fill:#777777;}
+</style>
+<rect width="500" height="380" fill="white" stroke="#bbbbbb"/>
+<rect x="4" y="4" width="492" height="372" fill="none" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="4" y="338" width="492" height="38" fill="#cce0ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="250" y="356" text-anchor="middle" class="t">Peça 3: REDUTOR (DECORATIVO)</text>
+<text x="250" y="370" text-anchor="middle" class="n">ConfiMinas Engenharia | PLA 0.2mm 20% infill | medidas em mm</text>
+<text x="114.19999999999999" y="63" text-anchor="middle" class="t" fill="#000000">VISTA FRONTAL</text>
+<rect x="75" y="75" width="78.39999999999999" height="84.0" fill="#888888" stroke="#333" stroke-width="2"/>
+<rect x="91.79999999999998" y="75" width="44.8" height="33.599999999999994" fill="#999" stroke="#333" stroke-width="1"/>
+<text x="114.19999999999999" y="83" text-anchor="middle" class="n" fill="#000000">tampa inspeção</text>
+<circle cx="75" cy="117.0" r="2.86" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="153.39999999999998" cy="117.0" r="2.86" fill="white" stroke="#000000" stroke-width="1.5"/>
+<text x="63" y="121.0" text-anchor="end" class="n" fill="#000000">entrada</text>
+<text x="157.39999999999998" y="121.0" text-anchor="start" class="n" fill="#000000">saída</text>
+<circle cx="86.2" cy="86.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="86.2" cy="142.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="136.6" cy="86.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="136.6" cy="142.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<line x1="75" y1="187.0" x2="153.39999999999998" y2="187.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="75" y1="159.0" x2="75" y2="193.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="153.39999999999998" y1="159.0" x2="153.39999999999998" y2="193.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="75,187.0 81,184.0 81,190.0" fill="#cc2200"/>
+<polygon points="153.39999999999998,187.0 147.39999999999998,184.0 147.39999999999998,190.0" fill="#cc2200"/>
+<text x="114.19999999999999" y="182.0" text-anchor="middle" class="d" fill="#000000">28 mm</text>
+<line x1="178.39999999999998" y1="75" x2="178.39999999999998" y2="159.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="153.39999999999998" y1="75" x2="184.39999999999998" y2="75" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="153.39999999999998" y1="159.0" x2="184.39999999999998" y2="159.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="178.39999999999998,75 175.39999999999998,81 181.39999999999998,81" fill="#cc2200"/>
+<polygon points="178.39999999999998,159.0 175.39999999999998,153.0 181.39999999999998,153.0" fill="#cc2200"/>
+<text x="192.39999999999998" y="121.0" text-anchor="middle" class="d" transform="rotate(-90 192.39999999999998 121.0)">30 mm</text>
+<text x="277.59999999999997" y="63" text-anchor="middle" class="t" fill="#000000">VISTA LATERAL</text>
+<rect x="238.39999999999998" y="75" width="78.39999999999999" height="84.0" fill="#888888" stroke="#333" stroke-width="2"/>
+<circle cx="277.59999999999997" cy="117.0" r="2.86" fill="white" stroke="#000000" stroke-width="1.5"/>
+<line x1="238.39999999999998" y1="184.0" x2="316.79999999999995" y2="184.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="238.39999999999998" y1="159.0" x2="238.39999999999998" y2="190.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="316.79999999999995" y1="159.0" x2="316.79999999999995" y2="190.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="238.39999999999998,184.0 244.39999999999998,181.0 244.39999999999998,187.0" fill="#cc2200"/>
+<polygon points="316.79999999999995,184.0 310.79999999999995,181.0 310.79999999999995,187.0" fill="#cc2200"/>
+<text x="277.59999999999997" y="179.0" text-anchor="middle" class="d" fill="#000000">28 mm</text>
+<rect x="75" y="214.0" width="220" height="52" fill="#f0f6ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="83" y="232.0" text-anchor="start" class="n" fill="#000000">Eixo ø2.3mm atravessa horizontalmente: conecta carcaça motor → tambor</text>
+<text x="83" y="246.0" text-anchor="start" class="n" fill="#000000">Furos ø3.4mm na base: parafusos M3 para fixação no skid</text>
+<text x="83" y="260.0" text-anchor="start" class="n" fill="#000000">Peça decorativa — simula caixa redutora do moinho real</text>
+
+</svg>

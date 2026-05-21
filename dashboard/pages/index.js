@@ -1,7 +1,8 @@
 import { useCallback, useMemo, memo } from 'react';
 import Head from 'next/head';
 import { Thermometer, Activity, Zap, Cpu, Bell, RefreshCw, Play, Square, Settings } from 'lucide-react';
-import useMotorData, { API } from '../hooks/useMotorData';
+import useMotorData from '../hooks/useMotorData';
+import { apiFetch } from '../lib/api';
 import SensorChart from '../components/SensorChart';
 import StatusGauge from '../components/StatusGauge';
 import ServiceOrderList from '../components/ServiceOrderList';
@@ -129,13 +130,19 @@ export default function Dashboard() {
   const nominal = status?.nominal_current ?? 8;
 
   const motorAction = useCallback(async (a) => {
-    await fetch(`${API}/api/motor/${a}`, { method: 'POST' });
+    await apiFetch(`/api/motor/${a}`, { method: 'POST' });
     refresh();
   }, [refresh]);
 
   const confirmOrder = useCallback(async (id) => {
-    const res = await fetch(`${API}/api/service-orders/${id}/fechar`, { method: 'PATCH' });
+    const res = await apiFetch(`/api/service-orders/${id}/fechar`, { method: 'PATCH' });
     if (!res.ok) throw new Error('Falha ao confirmar OS');
+    refresh();
+  }, [refresh]);
+
+  const deleteOrder = useCallback(async (id) => {
+    const res = await apiFetch(`/api/service-orders/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Falha ao remover OS');
     refresh();
   }, [refresh]);
 
@@ -197,7 +204,7 @@ export default function Dashboard() {
                 {openOrders} aberta{openOrders !== 1 ? 's' : ''} · {closedOrders} finalizada{closedOrders !== 1 ? 's' : ''}
               </span>
             </div>
-            <ServiceOrderList orders={orders} onConfirm={confirmOrder} />
+            <ServiceOrderList orders={orders} onConfirm={confirmOrder} onDelete={deleteOrder} />
           </section>
         </main>
       </div>

@@ -1,16 +1,33 @@
 import { memo, useState } from 'react';
-import { Download, CheckCircle2, Clock, Archive } from 'lucide-react';
+import { Download, CheckCircle2, Clock, Archive, Trash2 } from 'lucide-react';
+import { apiFetch } from '../lib/api';
 
-const API = 'http://localhost:8000';
+async function downloadPdf(os) {
+  const res = await apiFetch(`/api/service-orders/${os.id}/pdf`);
+  if (!res.ok) {
+    alert('Falha ao baixar PDF');
+    return;
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Ordem de Servico ${os.os_number}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 const PRIORITY = {
   critica: { label: 'Crítica', color: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
   alta:    { label: 'Alta',    color: '#d97706', bg: '#fffbeb', border: '#fde68a' },
 };
 
-function OrderCard({ os, onConfirm, confirming }) {
+function OrderCard({ os, onConfirm, confirming, onDelete, deleting }) {
   const p = PRIORITY[os.priority] || PRIORITY.alta;
   const isOpen = os.status === 'aberta';
+  const isClosed = os.status === 'fechada';
 
   return (
     <div
@@ -47,17 +64,15 @@ function OrderCard({ os, onConfirm, confirming }) {
       </div>
 
       <div className="flex flex-col gap-1.5 shrink-0">
-        {os.has_pdf && (
-          <a
-            href={`${API}/api/service-orders/${os.id}/pdf`}
-            download={`Ordem de Servico ${os.os_number}.pdf`}
-            target="_blank"
-            rel="noreferrer"
+        {(os.has_pdf || isClosed) && (
+          <button
+            type="button"
+            onClick={() => downloadPdf(os)}
             className="flex items-center justify-center gap-1.5 text-xs px-3 py-2 rounded-lg font-medium"
-            style={{ background: '#eff4ff', color: '#2563eb', border: '1px solid #bfdbfe' }}
+            style={{ background: '#eff4ff', color: '#2563eb', border: '1px solid #bfdbfe', cursor: 'pointer' }}
           >
             <Download size={12} /> PDF
-          </a>
+          </button>
         )}
         {isOpen && onConfirm && (
           <button
@@ -74,6 +89,23 @@ function OrderCard({ os, onConfirm, confirming }) {
           >
             <CheckCircle2 size={12} />
             {confirming === os.id ? '...' : 'Confirmar'}
+          </button>
+        )}
+        {isClosed && onDelete && (
+          <button
+            type="button"
+            onClick={() => onDelete(os.id)}
+            disabled={deleting === os.id}
+            className="flex items-center justify-center gap-1.5 text-xs px-3 py-2 rounded-lg font-medium"
+            style={{
+              background: deleting === os.id ? '#f1f5f9' : '#fff5f5',
+              color: deleting === os.id ? '#94a3b8' : '#dc2626',
+              border: '1px solid #fecaca',
+              cursor: deleting === os.id ? 'wait' : 'pointer',
+            }}
+          >
+            <Trash2 size={12} />
+            {deleting === os.id ? '...' : 'Remover'}
           </button>
         )}
       </div>
@@ -120,8 +152,9 @@ function OrderColumn({ title, icon: Icon, count, accent, children, emptyText }) 
   );
 }
 
-function ServiceOrderList({ orders, onConfirm }) {
+function ServiceOrderList({ orders, onConfirm, onDelete }) {
   const [confirming, setConfirming] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   const openOrders = orders.filter(o => o.status === 'aberta');
   const closedOrders = orders.filter(o => o.status === 'fechada');
@@ -132,6 +165,15 @@ function ServiceOrderList({ orders, onConfirm }) {
       await onConfirm(id);
     } finally {
       setConfirming(null);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    setDeleting(id);
+    try {
+      await onDelete(id);
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -157,7 +199,7 @@ function ServiceOrderList({ orders, onConfirm }) {
         emptyText="Nenhuma OS finalizada"
       >
         {closedOrders.map(os => (
-          <OrderCard key={os.id} os={os} />
+          <OrderCard key={os.id} os={os} onDelete={handleDelete} deleting={deleting} />
         ))}
       </OrderColumn>
     </div>

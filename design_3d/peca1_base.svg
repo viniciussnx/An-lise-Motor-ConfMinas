@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="740" height="420" viewBox="0 0 740 420" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:15px;font-weight:bold;fill:#1a3a6b;}
+  .d{font-size:10px;fill:#cc2200;}
+  .n{font-size:9px;fill:#777777;}
+</style>
+<rect width="740" height="420" fill="white" stroke="#bbbbbb"/>
+<rect x="4" y="4" width="732" height="412" fill="none" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="4" y="378" width="732" height="38" fill="#cce0ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="370" y="396" text-anchor="middle" class="t">Peça 1: BASE MOINHO (SKID)</text>
+<text x="370" y="410" text-anchor="middle" class="n">ConfiMinas Engenharia | PLA 0.2mm 20% infill | medidas em mm</text>
+<text x="363.0" y="43" text-anchor="middle" class="t" fill="#000000">VISTA SUPERIOR</text>
+<rect x="55" y="55" width="616.0" height="251.99999999999997" fill="#cce0ff" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="55" y="77.4" width="616.0" height="7.0" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="55" y="277.6" width="616.0" height="7.0" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="83.0" y="55" width="7.0" height="251.99999999999997" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="279.0" y="55" width="7.0" height="251.99999999999997" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="475.0" y="55" width="7.0" height="251.99999999999997" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="637.4" y="55" width="7.0" height="251.99999999999997" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.5"/>
+<rect x="116.6" y="97.0" width="112.0" height="168.0" fill="white" stroke="#777777" stroke-width="0.8"/>
+<rect x="284.6" y="97.0" width="112.0" height="168.0" fill="white" stroke="#777777" stroke-width="0.8"/>
+<rect x="452.6" y="97.0" width="112.0" height="168.0" fill="white" stroke="#777777" stroke-width="0.8"/>
+<circle cx="71.8" cy="71.8" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="71.8" cy="290.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="654.1999999999999" cy="71.8" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="654.1999999999999" cy="290.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<rect x="88.6" y="146.98000000000002" width="68.03999999999999" height="68.03999999999999" fill="#ffe0b0" stroke="#cc6600" stroke-width="1.5"/>
+<text x="122.61999999999999" y="181.0" text-anchor="middle" class="n" fill="#000000">Motor DC</text>
+<text x="122.61999999999999" y="193.0" text-anchor="middle" class="n" fill="#000000">24.3×24.3mm</text>
+<line x1="55" y1="342.0" x2="671.0" y2="342.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="55" y1="307.0" x2="55" y2="348.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="671.0" y1="307.0" x2="671.0" y2="348.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="55,342.0 61,339.0 61,345.0" fill="#cc2200"/>
+<polygon points="671.0,342.0 665.0,339.0 665.0,345.0" fill="#cc2200"/>
+<text x="363.0" y="337.0" text-anchor="middle" class="d" fill="#000000">220 mm</text>
+<line x1="706.0" y1="55" x2="706.0" y2="307.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="671.0" y1="55" x2="712.0" y2="55" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="671.0" y1="307.0" x2="712.0" y2="307.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="706.0,55 703.0,61 709.0,61" fill="#cc2200"/>
+<polygon points="706.0,307.0 703.0,301.0 709.0,301.0" fill="#cc2200"/>
+<text x="720.0" y="185.0" text-anchor="middle" class="d" transform="rotate(-90 720.0 185.0)">90 mm</text>
+<line x1="88.6" y1="116.98000000000002" x2="156.64" y2="116.98000000000002" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="88.6" y1="146.98000000000002" x2="88.6" y2="122.98000000000002" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="156.64" y1="146.98000000000002" x2="156.64" y2="122.98000000000002" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="88.6,116.98000000000002 94.6,113.98000000000002 94.6,119.98000000000002" fill="#cc2200"/>
+<polygon points="156.64,116.98000000000002 150.64,113.98000000000002 150.64,119.98000000000002" fill="#cc2200"/>
+<text x="122.61999999999999" y="111.98000000000002" text-anchor="middle" class="d" fill="#000000">24.3 mm</text>
+<text x="831.0" y="43" text-anchor="middle" class="t" fill="#000000">VISTA LATERAL</text>
+<rect x="761.0" y="55" width="140.0" height="28.0" fill="#cce0ff" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="761.0" y="83.0" width="140.0" height="16.799999999999997" fill="#99bbdd" stroke="#1a3a6b" stroke-width="0.8"/>
+<line x1="926.0" y1="55" x2="926.0" y2="99.8" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="901.0" y1="55" x2="932.0" y2="55" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="901.0" y1="99.8" x2="932.0" y2="99.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="926.0,55 923.0,61 929.0,61" fill="#cc2200"/>
+<polygon points="926.0,99.8 923.0,93.8 929.0,93.8" fill="#cc2200"/>
+<text x="940.0" y="81.4" text-anchor="middle" class="d" transform="rotate(-90 940.0 81.4)">16 mm</text>
+<line x1="761.0" y1="119.8" x2="901.0" y2="119.8" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="761.0" y1="99.8" x2="761.0" y2="125.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="901.0" y1="99.8" x2="901.0" y2="125.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="761.0,119.8 767.0,116.8 767.0,122.8" fill="#cc2200"/>
+<polygon points="901.0,119.8 895.0,116.8 895.0,122.8" fill="#cc2200"/>
+<text x="831.0" y="114.8" text-anchor="middle" class="d" fill="#000000">50 mm</text>
+<rect x="55" y="362.0" width="220" height="52" fill="#f0f6ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="63" y="380.0" text-anchor="start" class="n" fill="#000000">Bolso laranja: cavidade para motor DC flat (24.3×24.3×3.6mm) afundado na base</text>
+<text x="63" y="394.0" text-anchor="start" class="n" fill="#000000">Furos ø3.4mm cantos: parafuso M3 para fixação em superfície</text>
+<text x="63" y="408.0" text-anchor="start" class="n" fill="#000000">Vigas transversais e longitudinais: nervuras estruturais (visual skid industrial)</text>
+
+</svg>

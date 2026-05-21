@@ -1,7 +1,26 @@
-node_modules/
-.next/
-dist/
+# Node / Next
 node_modules/
 .next/
 dist/
 build/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Banco e PDFs gerados
+backend/motor_monitor.db
+backend/motor_monitor.db-wal
+backend/motor_monitor.db-shm
+backend/pdfs/*.pdf
+
+# Sistema
+.DS_Store
+Thumbs.db
+.env
+.env.local

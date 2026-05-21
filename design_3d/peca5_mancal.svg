@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="480" height="420" viewBox="0 0 480 420" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:15px;font-weight:bold;fill:#1a3a6b;}
+  .d{font-size:10px;fill:#cc2200;}
+  .n{font-size:9px;fill:#777777;}
+</style>
+<rect width="480" height="420" fill="white" stroke="#bbbbbb"/>
+<rect x="4" y="4" width="472" height="412" fill="none" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="4" y="378" width="472" height="38" fill="#cce0ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="240" y="396" text-anchor="middle" class="t">Peça 5: MANCAL TRASEIRO</text>
+<text x="240" y="410" text-anchor="middle" class="n">ConfiMinas Engenharia | PLA 0.2mm 20% infill | medidas em mm</text>
+<text x="131.0" y="43" text-anchor="middle" class="t" fill="#000000">VISTA FRONTAL</text>
+<rect x="75" y="195.0" width="112.0" height="8.399999999999999" fill="#cccccc" stroke="#000000" stroke-width="2"/>
+<rect x="124.0" y="80.2" width="14.0" height="114.8" fill="#aaaaaa" stroke="#000000" stroke-width="1.5"/>
+<circle cx="131.0" cy="80.2" r="25.2" fill="#888888" stroke="#000000" stroke-width="2"/>
+<circle cx="131.0" cy="80.2" r="2.86" fill="white" stroke="#000000" stroke-width="1"/>
+<text x="131.0" y="84.2" text-anchor="middle" class="n" fill="#000000">ø2.3mm</text>
+<circle cx="89.0" cy="199.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<circle cx="167.39999999999998" cy="199.2" r="4.76" fill="white" stroke="#000000" stroke-width="1.5"/>
+<line x1="75" y1="225.4" x2="187.0" y2="225.4" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="75" y1="203.4" x2="75" y2="231.4" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="187.0" y1="203.4" x2="187.0" y2="231.4" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="75,225.4 81,222.4 81,228.4" fill="#cc2200"/>
+<polygon points="187.0,225.4 181.0,222.4 181.0,228.4" fill="#cc2200"/>
+<text x="131.0" y="220.4" text-anchor="middle" class="d" fill="#000000">40 mm</text>
+<line x1="212.0" y1="80.2" x2="212.0" y2="203.4" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="187.0" y1="80.2" x2="218.0" y2="80.2" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="187.0" y1="203.4" x2="218.0" y2="203.4" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="212.0,80.2 209.0,86.2 215.0,86.2" fill="#cc2200"/>
+<polygon points="212.0,203.4 209.0,197.4 215.0,197.4" fill="#cc2200"/>
+<text x="226.0" y="145.8" text-anchor="middle" class="d" transform="rotate(-90 226.0 145.8)">50 mm</text>
+<text x="319.0" y="43" text-anchor="middle" class="t" fill="#000000">VISTA LATERAL</text>
+<rect x="277.0" y="195.0" width="84.0" height="8.399999999999999" fill="#cccccc" stroke="#000000" stroke-width="2"/>
+<rect x="312.0" y="80.2" width="14.0" height="114.8" fill="#aaaaaa" stroke="#000000" stroke-width="1.5"/>
+<circle cx="319.0" cy="80.2" r="25.2" fill="#888888" stroke="#000000" stroke-width="2"/>
+<line x1="277.0" y1="225.4" x2="361.0" y2="225.4" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="277.0" y1="203.4" x2="277.0" y2="231.4" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="361.0" y1="203.4" x2="361.0" y2="231.4" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="277.0,225.4 283.0,222.4 283.0,228.4" fill="#cc2200"/>
+<polygon points="361.0,225.4 355.0,222.4 355.0,228.4" fill="#cc2200"/>
+<text x="319.0" y="220.4" text-anchor="middle" class="d" fill="#000000">30 mm</text>
+<rect x="75" y="253.4" width="220" height="52" fill="#f0f6ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="83" y="271.4" text-anchor="start" class="n" fill="#000000">Suporta a extremidade traseira do tambor oposta ao motor</text>
+<text x="83" y="285.4" text-anchor="start" class="n" fill="#000000">Furo ø2.3mm no topo: eixo do tambor passa e gira livremente</text>
+<text x="83" y="299.4" text-anchor="start" class="n" fill="#000000">Furos M3 na base: parafusos fixam no skid</text>
+
+</svg>

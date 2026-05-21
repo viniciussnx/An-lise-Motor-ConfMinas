@@ -1,7 +1,7 @@
 """
 Persistência e validação unificada de leituras (ESP32, simulador Python, simulador web).
 """
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session
 from database import SensorReading, MotorState
 from predictive import analyze, status_to_dict
 from data_source import normalize_source, validate_sensor_values, esp32_sending_live
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def web_vibration_to_mm_s(amplitude: float, frequency: float, detected: bool) -> float:
@@ -95,7 +99,7 @@ def ingest_reading(
 
     if motor and current > 0.5:
         motor.is_running = True
-        motor.updated_at = datetime.utcnow()
+        motor.updated_at = _utcnow()
         db.commit()
 
     status_data = status_to_dict(analysis)

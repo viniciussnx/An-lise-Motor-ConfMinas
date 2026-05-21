@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="560" height="480" viewBox="0 0 560 480" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+    <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#00000044"/>
+  </filter>
+</defs>
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:16px;font-weight:bold;fill:#2244aa;}
+  .d{font-size:10px;fill:#cc2200;}
+  .lbl{font-size:9px;fill:#444;}
+  .big{font-size:13px;font-weight:bold;}
+</style>
+<rect width="560" height="480" fill="#f5f7fa"/>
+<rect x="3" y="3" width="554" height="474" fill="none" stroke="#1a3a8f" stroke-width="2"/>
+<!-- Vista Lateral Direita -->
+<line x1="70.0" y1="380.0" x2="392.0" y2="380.0" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="6,4"/>
+<rect x="80.0" y="341.6" width="216.0" height="38.4" fill="#2255cc" stroke="#1a3a8f" stroke-width="1.5"/>
+<rect x="144.8" y="221.6" width="86.4" height="134.4" fill="#2244aa" stroke="#2244aa" stroke-width="1.5" rx="3"/>
+<rect x="163.5" y="277.8" width="49.0" height="16.0" fill="#2244aa" stroke="#2244aa" stroke-width="0" rx="4"/>
+<text x="188.0" y="288.8" text-anchor="middle" class="lbl" fill="#ffffff">MOTOR</text>
+<circle cx="188.0" cy="288.8" r="67.2" fill="#ddaa00" stroke="#ddaa00" stroke-width="2"/>
+<circle cx="188.0" cy="288.8" r="52.8" fill="#dd6600" stroke="#dd6600" stroke-width="2"/>
+<circle cx="188.0" cy="288.8" r="45.6" fill="#ffffff" stroke="#aaaaaa" stroke-width="0.7"/>
+<circle cx="245.6" cy="288.8" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="237.9" cy="317.6" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="216.8" cy="338.7" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="188.0" cy="346.4" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="159.2" cy="338.7" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="138.1" cy="317.6" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="130.4" cy="288.8" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="138.1" cy="260.0" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="159.2" cy="238.9" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="188.0" cy="231.2" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="216.8" cy="238.9" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<circle cx="237.9" cy="260.0" r="2.0" fill="#ffffff" stroke="#000000" stroke-width="0.6"/>
+<rect x="160.0" y="277.8" width="56.0" height="16.0" fill="#dd6600" stroke="#dd6600" stroke-width="0" rx="4"/>
+<text x="188.0" y="288.8" text-anchor="middle" class="lbl" fill="#ffffff">TAMBOR</text>
+<rect x="140.0" y="188.0" width="48.0" height="192.0" fill="#aabbdd" stroke="#2244aa" stroke-width="1.5"/>
+<rect x="146.5" y="249.0" width="35.0" height="16.0" fill="#2244aa" stroke="#2244aa" stroke-width="0" rx="4"/>
+<text x="164.0" y="260.0" text-anchor="middle" class="lbl" fill="#ffffff">CLP</text>
+<line x1="80.0" y1="406.0" x2="296.0" y2="406.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="80.0" y1="380.0" x2="80.0" y2="412.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="296.0" y1="380.0" x2="296.0" y2="412.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="80.0,406.0 86.0,403.0 86.0,409.0" fill="#cc2200"/>
+<polygon points="296.0,406.0 290.0,403.0 290.0,409.0" fill="#cc2200"/>
+<text x="188.0" y="402.0" text-anchor="middle" class="d" fill="#000000">90 mm</text>
+<line x1="322.0" y1="221.6" x2="322.0" y2="356.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="304.0" y1="221.6" x2="328.0" y2="221.6" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="304.0" y1="356.0" x2="328.0" y2="356.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="322.0,221.6 319.0,227.6 325.0,227.6" fill="#cc2200"/>
+<polygon points="322.0,356.0 319.0,350.0 325.0,350.0" fill="#cc2200"/>
+<text x="336.0" y="292.8" text-anchor="middle" class="d" transform="rotate(-90 336.0 288.8)">ø56mm</text>
+<line x1="340.0" y1="236.0" x2="340.0" y2="341.6" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="326.0" y1="236.0" x2="346.0" y2="236.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="326.0" y1="341.6" x2="346.0" y2="341.6" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="340.0,236.0 337.0,242.0 343.0,242.0" fill="#cc2200"/>
+<polygon points="340.0,341.6 337.0,335.6 343.0,335.6" fill="#cc2200"/>
+<text x="354.0" y="292.8" text-anchor="middle" class="d" transform="rotate(-90 354.0 288.8)">ø44mm</text>
+<line x1="92.0" y1="288.8" x2="92.0" y2="380.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="70.0" y1="288.8" x2="98.0" y2="288.8" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="70.0" y1="380.0" x2="98.0" y2="380.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="92.0,288.8 89.0,294.8 95.0,294.8" fill="#cc2200"/>
+<polygon points="92.0,380.0 89.0,374.0 95.0,374.0" fill="#cc2200"/>
+<text x="106.0" y="338.4" text-anchor="middle" class="d" transform="rotate(-90 106.0 334.4)">38mm</text>
+<line x1="64.0" y1="221.6" x2="64.0" y2="380.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="50.0" y1="221.6" x2="70.0" y2="221.6" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="50.0" y1="380.0" x2="70.0" y2="380.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="64.0,221.6 61.0,227.6 67.0,227.6" fill="#cc2200"/>
+<polygon points="64.0,380.0 61.0,374.0 67.0,374.0" fill="#cc2200"/>
+<text x="78.0" y="304.8" text-anchor="middle" class="d" transform="rotate(-90 78.0 300.8)">66mm</text>
+<text x="188.0" y="22.0" text-anchor="middle" class="t" fill="#000000">VISTA LATERAL DIREITA</text>
+
+<rect x="3" y="440" width="554" height="37" fill="#ccddf0" stroke="#1a3a8f" stroke-width="1"/>
+<text x="280" y="458" text-anchor="middle" class="big" fill="#1a3a8f">ConfiMinas — Protótipo Moinho de Bolas | Vista Lateral Direita</text>
+<text x="280" y="472" text-anchor="middle" class="lbl">Medidas em mm | Escala aproximada | PLA 0.2mm</text>
+</svg>

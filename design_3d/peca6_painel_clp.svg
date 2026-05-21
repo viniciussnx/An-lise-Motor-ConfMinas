@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="560" height="420" viewBox="0 0 560 420" xmlns="http://www.w3.org/2000/svg">
+<style>
+  text{font-family:Arial,sans-serif;font-size:11px;fill:#000000;}
+  .t{font-size:15px;font-weight:bold;fill:#1a3a6b;}
+  .d{font-size:10px;fill:#cc2200;}
+  .n{font-size:9px;fill:#777777;}
+</style>
+<rect width="560" height="420" fill="white" stroke="#bbbbbb"/>
+<rect x="4" y="4" width="552" height="412" fill="none" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="4" y="378" width="552" height="38" fill="#cce0ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="280" y="396" text-anchor="middle" class="t">Peça 6: PAINEL CLP (ESP32)</text>
+<text x="280" y="410" text-anchor="middle" class="n">ConfiMinas Engenharia | PLA 0.2mm 20% infill | medidas em mm</text>
+<text x="119.6" y="43" text-anchor="middle" class="t" fill="#000000">VISTA FRONTAL</text>
+<rect x="65" y="55" width="109.19999999999999" height="224.0" fill="#dde8ff" stroke="#1a3a6b" stroke-width="2"/>
+<rect x="80.4" y="62.0" width="78.39999999999999" height="154.0" fill="#222222" stroke="#000000" stroke-width="1.5"/>
+<text x="119.6" y="140.0" text-anchor="middle" class="t" fill="#000000">ESP32</text>
+<text x="119.6" y="153.0" text-anchor="middle" fill="white" font-size="9px">28×55mm</text>
+<circle cx="119.6" cy="223.0" r="7.279999999999999" fill="#00dd44" stroke="#000000" stroke-width="1"/>
+<text x="119.6" y="237.0" text-anchor="middle" class="n" fill="#000000">LED ø5mm</text>
+<rect x="81.8" y="271.0" width="16.799999999999997" height="8.399999999999999" fill="white" stroke="#000000" stroke-width="0.6"/>
+<rect x="109.8" y="271.0" width="16.799999999999997" height="8.399999999999999" fill="white" stroke="#000000" stroke-width="0.6"/>
+<rect x="137.8" y="271.0" width="16.799999999999997" height="8.399999999999999" fill="white" stroke="#000000" stroke-width="0.6"/>
+<rect x="165.8" y="271.0" width="16.799999999999997" height="8.399999999999999" fill="white" stroke="#000000" stroke-width="0.6"/>
+<rect x="64" y="67.6" width="8.399999999999999" height="11.2" fill="white" stroke="#000000" stroke-width="0.8"/>
+<text x="61" y="75.6" text-anchor="end" class="n" fill="#000000">USB</text>
+<line x1="65" y1="307.0" x2="174.2" y2="307.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="65" y1="279.0" x2="65" y2="313.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="174.2" y1="279.0" x2="174.2" y2="313.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="65,307.0 71,304.0 71,310.0" fill="#cc2200"/>
+<polygon points="174.2,307.0 168.2,304.0 168.2,310.0" fill="#cc2200"/>
+<text x="119.6" y="302.0" text-anchor="middle" class="d" fill="#000000">44 mm</text>
+<line x1="202.2" y1="55" x2="202.2" y2="279.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="174.2" y1="55" x2="208.2" y2="55" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="174.2" y1="279.0" x2="208.2" y2="279.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="202.2,55 199.2,61 205.2,61" fill="#cc2200"/>
+<polygon points="202.2,279.0 199.2,273.0 205.2,273.0" fill="#cc2200"/>
+<text x="216.2" y="171.0" text-anchor="middle" class="d" transform="rotate(-90 216.2 171.0)">80 mm</text>
+<text x="287.2" y="43" text-anchor="middle" class="t" fill="#000000">VISTA LATERAL</text>
+<rect x="259.2" y="55" width="109.19999999999999" height="56.0" fill="#dde8ff" stroke="#1a3a6b" stroke-width="2"/>
+<line x1="390.4" y1="55" x2="390.4" y2="111.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="368.4" y1="55" x2="396.4" y2="55" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="368.4" y1="111.0" x2="396.4" y2="111.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="390.4,55 387.4,61 393.4,61" fill="#cc2200"/>
+<polygon points="390.4,111.0 387.4,105.0 393.4,105.0" fill="#cc2200"/>
+<text x="404.4" y="87.0" text-anchor="middle" class="d" transform="rotate(-90 404.4 87.0)">20 mm</text>
+<line x1="259.2" y1="133.0" x2="368.4" y2="133.0" stroke="#cc2200" stroke-width="0.9"/>
+<line x1="259.2" y1="111.0" x2="259.2" y2="139.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<line x1="368.4" y1="111.0" x2="368.4" y2="139.0" stroke="#cc2200" stroke-width="0.6" stroke-dasharray="3,2"/>
+<polygon points="259.2,133.0 265.2,130.0 265.2,136.0" fill="#cc2200"/>
+<polygon points="368.4,133.0 362.4,130.0 362.4,136.0" fill="#cc2200"/>
+<text x="313.79999999999995" y="128.0" text-anchor="middle" class="d" fill="#000000">44 mm</text>
+<rect x="65" y="329.0" width="220" height="52" fill="#f0f6ff" stroke="#1a3a6b" stroke-width="1"/>
+<text x="73" y="347.0" text-anchor="start" class="n" fill="#000000">Janela frontal: ESP32 encaixa e fica visível (simula IHM do CLP industrial)</text>
+<text x="73" y="361.0" text-anchor="start" class="n" fill="#000000">Furo USB lateral: cabo de alimentação e gravação do firmware</text>
+<text x="73" y="375.0" text-anchor="start" class="n" fill="#000000">LED verde: indica status de conexão WiFi e envio de dados</text>
+
+</svg>
