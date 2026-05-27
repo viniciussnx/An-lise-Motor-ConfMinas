@@ -6,13 +6,13 @@
 // ════════════════════════════════════════════════════════════
 
 // ── WiFi ────────────────────────────────────────────────────  [EDITAR]
-#define WIFI_SSID     "SUA_REDE_WIFI"
-#define WIFI_PASSWORD "SUA_SENHA_WIFI"
+#define WIFI_SSID     "Vinicius"
+#define WIFI_PASSWORD "Redline17qual "
 
 // ── Backend ─────────────────────────────────────────────────  [EDITAR]
 // Coloque o IP do PC que roda o servidor (ifconfig / ipconfig).
 // Se USE_MDNS=true, a placa também tenta resolver "confiminas.local".
-#define API_HOST          "192.168.1.100"
+#define API_HOST          "192.168.1.220"
 #define API_PORT          8000
 #define API_ENDPOINT      "/api/readings"
 #define API_HEALTH_PATH   "/api/esp32/health"
@@ -52,6 +52,11 @@
 // ── Motor (transistor BC547) ────────────────────────────────
 #define PIN_MOTOR_CTRL    26
 #define MOTOR_ON_LEVEL    HIGH
+
+// ── LED interno (WiFi status) ────────────────────────────────
+#ifndef LED_BUILTIN
+  #define LED_BUILTIN 2        // GPIO2 — LED azul da placa ESP32 Dev Module
+#endif
 
 // ── LEDs de status ──────────────────────────────────────────
 // Conexão: GPIO → Resistor 330Ω → LED → GND
