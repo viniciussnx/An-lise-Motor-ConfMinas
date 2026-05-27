@@ -53,6 +53,12 @@
 #define PIN_MOTOR_CTRL    26
 #define MOTOR_ON_LEVEL    HIGH
 
+// ── LEDs de status ──────────────────────────────────────────
+// Conexão: GPIO → Resistor 330Ω → LED → GND
+#define PIN_LED_YELLOW    25   // GPIO25 — circuito energizado (sempre acesa)
+#define PIN_LED_RED       27   // GPIO27 — motor parado
+#define PIN_LED_GREEN     14   // GPIO14 — motor em funcionamento
+
 // ── Identificação ───────────────────────────────────────────
 #define DEVICE_ID    "ESP32-MOTOR-01"
 #define FIRMWARE_VER "2.1.0"

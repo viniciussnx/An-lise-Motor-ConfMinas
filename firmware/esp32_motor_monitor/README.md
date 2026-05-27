@@ -11,7 +11,10 @@
 | Corrente | ACS712-5A | GPIO 32 (ADC) | — |
 | Tensão | Divisor R (R1=R2=10kΩ) | GPIO 33 (ADC) | `VOLTAGE_RATIO` |
 | Motor | Transistor BC547 | GPIO 26 | — |
-| LED status | LED interno | GPIO 2 (LED_BUILTIN) | piscando = sem WiFi · aceso = enviando OK |
+| LED WiFi | LED interno | GPIO 2 (LED_BUILTIN) | piscando = sem WiFi · aceso = enviando OK |
+| LED Amarelo | LED 5mm | GPIO 25 | sempre acesa — circuito energizado |
+| LED Vermelho | LED 5mm | GPIO 27 | motor parado |
+| LED Verde | LED 5mm | GPIO 14 | motor em funcionamento |
 
 ## Auto-Discovery (mDNS)
 
@@ -54,6 +57,35 @@ GPIO 26 ──→ R1 (1kΩ) ──→ BC547 Base
 Motor DC (+) ──→ VIN (5V)
 BC547 Emissor ──→ GND
 Diodo 1N4007 em paralelo com motor (catodo no +)
+```
+
+## Circuito dos LEDs de Status
+
+Cada LED precisa de um resistor de 330Ω em série para limitar corrente (~10mA):
+
+```
+GPIO25 (Amarelo) ──→ 330Ω ──→ LED Amarelo ──→ GND
+GPIO27 (Vermelho) ─→ 330Ω ──→ LED Vermelho ──→ GND
+GPIO14 (Verde) ───→ 330Ω ──→ LED Verde ──→ GND
+```
+
+| LED | GPIO | Condição |
+|-----|------|----------|
+| Amarelo | 25 | Sempre acesa após energizar o circuito |
+| Vermelho | 27 | Motor parado (padrão ao ligar) |
+| Verde | 14 | Motor em funcionamento |
+
+## Fluxo Dashboard → Motor → LEDs
+
+```
+Dashboard clica "Parar Motor"
+  → POST /api/motor/stop
+    → backend grava is_running=false no banco
+      → ESP32 faz GET /api/esp32/health a cada 2s
+        → lê is_running=false
+          → GPIO26 = LOW (motor desliga)
+          → LED Vermelho = HIGH
+          → LED Verde    = LOW
 ```
 
 ## Gravação do Firmware

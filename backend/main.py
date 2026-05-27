@@ -667,12 +667,17 @@ def esp32_config_template(request: Request):
 
 @app.get("/api/esp32/health")
 def esp32_health(db: Session = Depends(get_db)):
-    """Retorna status da placa — útil para a placa fazer auto-discovery."""
+    """Retorna status da placa — útil para a placa fazer auto-discovery.
+    Inclui is_running para que o ESP32 possa sincronizar o estado do motor
+    sem necessidade de autenticação.
+    """
+    motor = db.query(MotorState).first()
     return {
         "ok": True,
         "esp32_active": esp32_sending_live(db),
         "auth_required": False,
         "endpoint": "/api/readings",
+        "is_running": bool(motor.is_running) if motor else False,
     }
 
 
